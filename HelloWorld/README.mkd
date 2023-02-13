@@ -1,0 +1,14 @@
+
+# HelloWorld ################################################################
+
+(For more details of the development tools see [chapter two of the course
+notes](https://iot.unphone.net/#sec:setup).)
+
+A basic ESP32 example that prints a few useful macro definitions to serial and
+blinks the inbuilt LED.
+
+Files:
+
+- `sketch`:             source code
+  - `main.cpp`:         main entry points: `setup`, `loop`, `app_main`
+  - `sketch.h`:         defines a macro for Arduino IDE builds
