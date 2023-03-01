@@ -56,8 +56,8 @@ void getHtml( // turn array of strings & set of replacements into a String
 void handleSeven() {
   dln(netDBG, "handleSeven: serving page at /7");
   replacement_t repls[] = { // the elements to replace in the boilerplate
-    { 1, "a better title" },
-    { 7, "Eat more green vegetables!" },
+    { 1, "  Ethan this is an even better title its awesome and you are so cool." },
+    { 7, "Do NOT! Eat more green vegetables!" },
   };
   String toSend = "";
   getHtml(toSend, boiler, ALEN(boiler), repls, ALEN(repls)); // instantiate

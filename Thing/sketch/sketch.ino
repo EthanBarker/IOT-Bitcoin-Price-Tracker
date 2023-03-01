@@ -7,7 +7,7 @@
 
 // config ///////////////////////////////////////////////////////////////////
 
-int LABNUM =  2; // which lab exercise number are we doing?
+int LABNUM =  7; // which lab exercise number are we doing?
 int firmwareVersion = 1; // used to check for updates, see Ex10
 
 // arduino-land entry points ////////////////////////////////////////////////

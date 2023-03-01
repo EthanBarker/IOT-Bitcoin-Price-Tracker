@@ -12,7 +12,7 @@ void setup01() {
   Serial.println("\nsetup01..."); // say hi
 }
 void loop01() {
-  Serial.printf("ESP32 MAC = %s\n", MAC_ADDRESS); // print the ESP's "ID"
+  Serial.printf("Ethans very cool ESP MAC address is = %s\n", MAC_ADDRESS); // print the ESP's "ID"
   blink(3);                     // blink the on-board LED...
   delay(1000);                  // ...and pause
 }

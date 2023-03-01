@@ -1,30 +1,39 @@
 // Ex10.cpp/.ino
-// OTA update from build/Thing.bin; see also magic.sh ota-httpd
+//
+// OTA update from version.bin; run `python -m http.server 8000`
+// to serve, and store the current revision number in "version.txt"
+//
+// when you bump the revision to higher than the current running number (in
+// firmwareVersion) you should see an OTA update, and following restart you
+// should be on the latest version
 
 #include "Thing.h"
 
 // what version of the firmware are we? (used to calculate need for updates)
-// see firmwareVersion in main.cpp
+// see firmwareVersion in sketch.ino
 
 // IP address and port number: CHANGE THE IP ADDRESS!
-#define FIRMWARE_SERVER_IP_ADDR "10.0.0.14"
+#define FIRMWARE_SERVER_IP_ADDR "10.0.0.49"
 #define FIRMWARE_SERVER_PORT    "8000"
 
 // setup ////////////////////////////////////////////////////////////////////
 void setup10() {
-  setup09(); // include the AP and network joining webserver stuff from Ex09
+  Serial.begin(115200); // initialise the serial line
+  getMAC(MAC_ADDRESS);  // store the MAC address as a chip identifier
   dln(startupDBG, "\nsetup10..."); // debug printout
-  Serial.printf("firmware is at version %d\n", firmwareVersion);
+  Serial.printf("running firmware is at version %d\n", firmwareVersion);
 
   // get on the network
   WiFi.begin(); // register MAC first! and add SSID/PSK details if needed
   uint16_t connectionTries = 0;
-  while (WiFi.status() != WL_CONNECTED) {
+  Serial.print("trying to connect to Wifi...");
+  while(WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
     if(connectionTries++ % 75 == 0) Serial.println("");
     delay(250);
   }
-  Serial.println("");
+  delay(500); // let things settle for half a second
+  Serial.println("connected :)");
 
   // materials for doing an HTTPS GET on github from the BinFiles/ dir
   HTTPClient http;
@@ -32,7 +41,7 @@ void setup10() {
   int highestAvailableVersion = -1;
 
   // read the version file from the cloud
-  respCode = doCloudGet(&http, "version");
+  respCode = doCloudGet(&http, "version.txt");
   if(respCode > 0) // check response code (-ve on failure)
     highestAvailableVersion = atoi(http.getString().c_str());
   else
@@ -53,12 +62,13 @@ void setup10() {
     firmwareVersion, highestAvailableVersion
   );
 
-  // do a GET for the .bin
+  // do a GET for the .bin, e.g. "23.bin" when "version.txt" contains 23
   String binName = String(highestAvailableVersion);
   binName += ".bin";
   respCode = doCloudGet(&http, binName);
   int updateLength = http.getSize();
-// TODO if this isn't big enough, refuse
+
+  // possible improvement: if size is improbably big or small, refuse
   if(respCode > 0 && respCode != 404) { // check response code (-ve on failure)
     Serial.printf(".bin code/size: %d; %d\n\n", respCode, updateLength);
   } else {

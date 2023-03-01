@@ -33,11 +33,11 @@ void loop06() {
 // startup utilities ////////////////////////////////////////////////////////
 void startAP() {
   apSSID = String("Thing-");
-  apSSID.concat(MAC_ADDRESS);
+  apSSID.concat("EthyBizzleESP32");
 
   if(! WiFi.mode(WIFI_AP_STA))
     dln(startupDBG, "failed to set Wifi mode");
-  if(! WiFi.softAP(apSSID.c_str(), "dumbpassword"))
+  if(! WiFi.softAP(apSSID.c_str(), "smartpassword"))
     dln(startupDBG, "failed to start soft AP");
   printIPs();
 }
@@ -78,7 +78,7 @@ String getPageTop() {
   ;
 };
 String getPageBody() {
-  return "<h2>Welcome to Thing!</h2>\n";
+  return "<h2>Ethan you are the coolest guy in town</h2>\n";
 }
 String getPageFooter() {
   return "\n<p><a href='/'>Home</a>&nbsp;&nbsp;&nbsp;</p></body></html>\n";
