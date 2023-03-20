@@ -1,10 +1,11 @@
 // PrAndUpThing.ino
 #include <WiFi.h>
-#include <Wire.h>
+#include <WebServer.h>
 
-// Wi-Fi credentials
-const char* ssid = "FLAT-6-2G";
-const char* password = "ptpassword";
+const char* ssid = "Ethan's ESP32 Access Point"; // SSID of the ESP32 access point
+const char* password = "password"; // Password for the access point
+
+WebServer server(80); // Create a web server on port 80
 
 // Define GPIO pins for LEDs
 const int red = 6; // Provisioning
@@ -14,9 +15,68 @@ const int green = 12; // Completed
 // Define GPIO pin for the button
 const int buttonPin = 5;
 
-void setup() {
-  Serial.begin(115200);
+void handleRoot() {
+  String page = "<html><body><h1>Available Wi-Fi Networks</h1><ul>";
+  int n = WiFi.scanNetworks();
+  for (int i = 0; i < n; i++) {
+    page += "<li>";
+    page += WiFi.SSID(i);
+    if (WiFi.encryptionType(i) != WIFI_AUTH_OPEN) {
+      page += " (password protected)";
+    }
+    page += "  <a href=\"/connect?ssid=";
+    page += WiFi.SSID(i);
+    page += "\">Connect</a>";
+    page += "</li>";
+  }
+  page += "</ul></body></html>";
+  server.send(200, "text/html", page);
+}
 
+void handleConnect() {
+  String ssid = server.arg("ssid");
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+
+  String key = "";
+  if (server.hasArg("key")) {
+    key = server.arg("key");
+  } else {
+    String page = "<html><body><h1>Enter Wi-Fi Password</h1>";
+    page += "<form method='get' action='/connect'>";
+    page += "<label for='key'>Password:</label>";
+    page += "<input type='password' id='key' name='key'><br><br>";
+    page += "<input type='submit' value='Connect'>";
+    page += "<input type='hidden' name='ssid' value='" + ssid + "'>";
+    page += "</form></body></html>";
+    server.send(200, "text/html", page);
+    return;
+  }
+
+  WiFi.begin(ssid.c_str(), key.c_str());
+  digitalWrite(red, HIGH); // Turn on the red LED while connecting
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting...");
+  }
+  
+  digitalWrite(red, LOW);
+  digitalWrite(green, HIGH); // Turn on the green LED once connected
+  Serial.println("Connected to Wi-Fi.");
+  
+  Serial.println("Connected");
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+  Serial.print("SSID: ");
+  Serial.println(WiFi.SSID());
+  server.send(200, "text/html", "<html><body><h1>Connected to " + ssid + "</h1><p><a href='/'>Go back to Home Page</a></p></body></html>");
+}
+
+void handleNotFound() {
+  server.send(404, "text/plain", "404: Not found");
+}
+
+void setup() {
   // Wait for 15 seconds before executing the rest of the code
   delay(15000);
 
@@ -25,46 +85,31 @@ void setup() {
   pinMode(green, OUTPUT);
   pinMode(buttonPin, INPUT_PULLUP);
 
-  // Connect to Wi-Fi
-  connectWiFi();
-
-  // Mock provisioning
-  mockProvisioning();
+  digitalWrite(red, HIGH); // Initialize the red LED to be on
+  
+  Serial.begin(115200);
+  WiFi.mode(WIFI_AP);
+  WiFi.softAP(ssid, password);
+  Serial.println("Access Point started");
+  Serial.print("SSID: ");
+  Serial.println(ssid);
+  Serial.print("Password: ");
+  Serial.println(password);
+  server.on("/", handleRoot);
+  server.on("/connect", handleConnect);
+  server.onNotFound(handleNotFound);
+  server.begin();
+  Serial.println("Web server started");
 }
 
 void loop() {
+  server.handleClient();
   // Check if the button is pressed
   if (digitalRead(buttonPin) == LOW) {
     // Mock update process
     mockUpdate();
     delay(300); // Add a small delay to debounce the button
   }
-}
-
-void connectWiFi() {
-  digitalWrite(red, HIGH);
-
-  WiFi.begin(ssid, password);
-  Serial.println("Connecting to Wi-Fi...");
-
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-
-  digitalWrite(red, LOW);
-  Serial.println("Connected to Wi-Fi.");
-}
-
-void mockProvisioning() {
-  digitalWrite(red, HIGH);
-  Serial.println("Provisioning...");
-
-  // Mock provisioning process
-  delay(2000);
-
-  digitalWrite(red, LOW);
-  Serial.println("Provisioning completed.");
 }
 
 void mockUpdate() {

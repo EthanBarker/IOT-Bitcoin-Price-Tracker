@@ -6,6 +6,14 @@ const char* password = "password"; // Password for the access point
 
 WebServer server(80); // Create a web server on port 80
 
+// Define GPIO pins for LEDs
+const int red = 6; // Provisioning
+const int yellow = 9; // Updating
+const int green = 12; // Completed
+
+// Define GPIO pin for the button
+const int buttonPin = 5;
+
 void handleRoot() {
   String page = "<html><body><h1>Available Wi-Fi Networks</h1><ul>";
   int n = WiFi.scanNetworks();
@@ -45,10 +53,15 @@ void handleConnect() {
   }
 
   WiFi.begin(ssid.c_str(), key.c_str());
+  digitalWrite(red, HIGH); // Turn on the red LED while connecting
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.println("Connecting...");
   }
+  
+  digitalWrite(red, LOW);
+  Serial.println("Connected to Wi-Fi.");
+  
   Serial.println("Connected");
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
@@ -62,6 +75,16 @@ void handleNotFound() {
 }
 
 void setup() {
+  // Wait for 15 seconds before executing the rest of the code
+  delay(15000);
+
+  pinMode(red, OUTPUT);
+  pinMode(yellow, OUTPUT);
+  pinMode(green, OUTPUT);
+  pinMode(buttonPin, INPUT_PULLUP);
+
+  digitalWrite(red, HIGH); // Initialize the red LED to be on
+  
   Serial.begin(115200);
   WiFi.mode(WIFI_AP);
   WiFi.softAP(ssid, password);
@@ -79,5 +102,26 @@ void setup() {
 
 void loop() {
   server.handleClient();
+  // Check if the button is pressed
+  if (digitalRead(buttonPin) == LOW) {
+    // Mock update process
+    mockUpdate();
+    delay(300); // Add a small delay to debounce the button
+  }
 }
- 
+
+void mockUpdate() {
+  digitalWrite(yellow, HIGH);
+  Serial.println("Updating...");
+
+  // Mock update process
+  delay(2000);
+
+  digitalWrite(yellow, LOW);
+  Serial.println("Update completed.");
+
+  // Indicate completion with the green LED
+  digitalWrite(green, HIGH);
+  delay(1000);
+  digitalWrite(green, LOW);
+}
