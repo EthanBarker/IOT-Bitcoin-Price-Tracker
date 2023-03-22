@@ -1,9 +1,16 @@
 // PrAndUpThing.ino
 #include <WiFi.h>
 #include <WebServer.h>
+#include <HTTPClient.h>
+#include <Update.h>
 
 const char* ssid = "Ethan's ESP32 Access Point"; // SSID of the ESP32 access point
 const char* password = "password"; // Password for the access point
+
+#define FIRMWARE_SERVER_IP_ADDR "10.254.7.164"
+#define FIRMWARE_SERVER_PORT    8000
+
+int firmwareVersion = 2; // Increment this value and recompile the sketch for each new version
 
 WebServer server(80); // Create a web server on port 80
 
@@ -14,6 +21,8 @@ const int green = 12; // Completed
 
 // Define GPIO pin for the button
 const int buttonPin = 5;
+
+
 
 void handleRoot() {
   String page = "<html><body><h1>Available Wi-Fi Networks</h1><ul>";
@@ -63,6 +72,8 @@ void handleConnect() {
   digitalWrite(red, LOW);
   digitalWrite(green, HIGH); // Turn on the green LED once connected
   Serial.println("Connected to Wi-Fi.");
+  delay(10000);
+  digitalWrite(green, LOW); //Turn off the Green LED after 1000ms
   
   Serial.println("Connected");
   Serial.print("IP address: ");
@@ -104,26 +115,53 @@ void setup() {
 
 void loop() {
   server.handleClient();
-  // Check if the button is pressed
+
   if (digitalRead(buttonPin) == LOW) {
-    // Mock update process
-    mockUpdate();
+    performOTAUpdate();
     delay(300); // Add a small delay to debounce the button
   }
 }
 
-void mockUpdate() {
-  digitalWrite(yellow, HIGH);
-  Serial.println("Updating...");
+void performOTAUpdate() {
+  HTTPClient http;
+  char url[256];
 
-  // Mock update process
-  delay(2000);
+  snprintf(url, sizeof(url), "http://%s:%d/version.txt", FIRMWARE_SERVER_IP_ADDR, FIRMWARE_SERVER_PORT);
+  http.begin(url);
+  int httpCode = http.GET();
+  if (httpCode > 0) {
+    int latestVersion = atoi(http.getString().c_str());
+    if (latestVersion > firmwareVersion) {
+      snprintf(url, sizeof(url), "http://%s:%d/firmware_%d.bin", FIRMWARE_SERVER_IP_ADDR, FIRMWARE_SERVER_PORT, latestVersion);
+      http.begin(url);
+      int httpCode = http.GET();
 
-  digitalWrite(yellow, LOW);
-  Serial.println("Update completed.");
-
-  // Indicate completion with the green LED
-  digitalWrite(green, HIGH);
-  delay(1000);
-  digitalWrite(green, LOW);
+      if (httpCode == 200) {
+        Serial.println("Starting OTA update...");
+        if (Update.begin(http.getSize())) {
+          size_t written = Update.writeStream(*http.getStreamPtr());
+          if (written == http.getSize()) {
+            Serial.println("Written : " + String(written) + " successfully");
+          } else {
+            Serial.println("Written only : " + String(written) + "/" + String(http.getSize()) + ". Retry?" );
+          }
+          if (Update.end()) {
+            Serial.println("OTA update complete. Rebooting...");
+            ESP.restart();
+          } else {
+            Serial.println("Error Occurred. Error #: " + String(Update.getError()));
+          }
+        } else {
+          Serial.println("Not enough space to begin OTA");
+        }
+      } else {
+        Serial.printf("Unable to fetch firmware: HTTP code %d\n", httpCode);
+      }
+    } else {
+      Serial.println("Firmware is up to date");
+    }
+  } else {
+    Serial.printf("Unable to fetch version.txt: HTTP code %d\n", httpCode);
+  }
+  http.end();
 }
