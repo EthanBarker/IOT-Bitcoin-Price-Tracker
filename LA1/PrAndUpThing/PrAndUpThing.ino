@@ -123,6 +123,7 @@ void loop() {
 }
 
 void performOTAUpdate() {
+  digitalWrite(yellow, HIGH);
   HTTPClient http;
   char url[256];
 
@@ -148,20 +149,44 @@ void performOTAUpdate() {
           if (Update.end()) {
             Serial.println("OTA update complete. Rebooting...");
             ESP.restart();
+            digitalWrite(green, HIGH); // Turn on the green LED
+            digitalWrite(yellow, LOW); // Turn off the yellow LED
+            delay(10000); // Wait for 10 seconds
+            digitalWrite(green, LOW); // Turn off the green LED
           } else {
             Serial.println("Error Occurred. Error #: " + String(Update.getError()));
+            digitalWrite(red, HIGH); // Turn on the red LED
+            digitalWrite(yellow, LOW); // Turn off the yellow LED
+            delay(10000); // Wait for 10 seconds
+            digitalWrite(red, LOW); // Turn off the red LED
           }
         } else {
           Serial.println("Not enough space to begin OTA");
+          digitalWrite(red, HIGH); // Turn on the red LED
+          digitalWrite(yellow, LOW); // Turn off the yellow LED
+          delay(10000); // Wait for 10 seconds
+          digitalWrite(red, LOW); // Turn off the red LED
         }
       } else {
         Serial.printf("Unable to fetch firmware: HTTP code %d\n", httpCode);
+        digitalWrite(red, HIGH); // Turn on the red LED
+        digitalWrite(yellow, LOW); // Turn off the yellow LED
+        delay(10000); // Wait for 10 seconds
+        digitalWrite(red, LOW); // Turn off the red LED
       }
     } else {
       Serial.println("Firmware is up to date");
+      digitalWrite(red, HIGH); // Turn on the red LED
+      digitalWrite(yellow, LOW); // Turn off the yellow LED
+      delay(10000); // Wait for 10 seconds
+      digitalWrite(red, LOW); // Turn off the red LED
     }
   } else {
     Serial.printf("Unable to fetch version.txt: HTTP code %d\n", httpCode);
+    digitalWrite(red, HIGH); // Turn on the red LED
+    digitalWrite(yellow, LOW); // Turn off the yellow LED
+    delay(10000); // Wait for 10 seconds
+    digitalWrite(red, LOW); // Turn off the red LED
   }
   http.end();
 }
