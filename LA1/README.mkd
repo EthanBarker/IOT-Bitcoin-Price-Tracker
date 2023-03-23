@@ -1,8 +1,16 @@
-
 # COM3505 Lab Assessment 1
 
-Put your documentation here. 
+# Task
+The task for Lab Assessment 1 was to "build and document a device which gives a visual indication of the stages involved in provisioning and update". We were expected to use LEDs to show the different stages of the processes at a given time. We also were expected to allow OTA updates once a button on the breadboard had been pressed. 
 
-Put your code in [PrAndUpThing/PrAndUpThing.ino](PrAndUpThing/PrAndUpThing.ino).
+# Our Solution
+In our solution we created a breadboard which contained three LED's one red, one yellow and one green. These were all connected to a resistor and we incorporated the use of a button for when the ESP should perform an OTA update. Our ESP32 was coded to act as a wireless access point where you can connect your smartphone/ laptop to it and then scan for nearby networks and connect to them. If a network is password protected then it will prompt you for a password before connecting. Once the ESP32 has been connected to a wifi network of your choice you could then press the button and this could call a function called performOTAUpdate() which would start an OTA update.
 
-See [the rubric](rubric.mkd) for more details.
+#Hardware
+We constructed our hardware based from the design in the second hardware lab for the 3LED's. We used the same GPIO pins by setting the red LED to GPIO 6, the yellow LED to GPIO 9, the green LED to GPIO 12 and the button to GPIO 5. Each LED was connected by the annode to the ESP and the cathode to a resistor. You can see photos of what this looks like in the images folder. 
+
+#Wifi provisioning
+We performed wifi porvisioning in a similar way to what was done in Ex9 of the solutions provided. We first set up the ESP32 as a wifi access point which I could connect my smartphone to and then we used WiFi.scanNetworks() to show a list of all the possible networks which the ESP32 could connect to. From this we coded the option for a user to select a network they wished to join and if this network was password protected then they would be prompted to input a password before the ESP32 connects to the network. This process is shown via screenshots in the Images folder. We also make use of LEDs to show the different stages of this. Initially, the red LED is on when the ESP is not connected to any wifi networks but when a connection is successfully made to a network the red LED turns off and the green one turns on for 10 seconds to show success. 
+
+#OTA (Over the Air)
+We performed OTA updates when the button is pressed by calling a function named performOTAUpdate(). This function works by checking for the latest firmware version from a server which in my case was my laptop. It compares the latest firmware version with the current one and if a newer version is available it then downloads the new firmware and updates the ESP32. We provide visual LED feedback with this by turning on the yellow LED when the process begins and then we either turn the green LED on if the OTA update has been successul or the red LED on if there has been a problem.
