@@ -6,6 +6,12 @@ The task for Lab Assessment 1 was to "build and document a device which gives a 
 # Our Solution
 In our solution we created a breadboard which contained three LED's one red, one yellow and one green. These were all connected to a resistor and we incorporated the use of a button for when the ESP should perform an OTA update. Our ESP32 was coded to act as a wireless access point where you can connect your smartphone/ laptop to it and then scan for nearby networks and connect to them. If a network is password protected then it will prompt you for a password before connecting. Once the ESP32 has been connected to a wifi network of your choice you could then press the button and this could call a function called performOTAUpdate() which would start an OTA update.
 
+# Libraries Used
+WiFi.h
+WebServer.h
+HTTPClient.h
+Update.h 
+
 # Hardware
 We constructed our hardware based from the design in the second hardware lab for the 3LED's. We used the same GPIO pins by setting the red LED to GPIO 6, the yellow LED to GPIO 9, the green LED to GPIO 12 and the button to GPIO 5. Each LED was connected by the annode to the ESP and the cathode to a resistor. You can see photos of what this looks like in the images folder. 
 
