@@ -10,7 +10,7 @@ const char* password = "password"; // Password for the access point
 #define FIRMWARE_SERVER_IP_ADDR "10.254.7.164"
 #define FIRMWARE_SERVER_PORT    8000
 
-int firmwareVersion = 2; // Increment this value and recompile the sketch for each new version
+int firmwareVersion = 1; // Increment this value and recompile the sketch for each new version
 
 WebServer server(80); // Create a web server on port 80
 
@@ -148,11 +148,11 @@ void performOTAUpdate() {
           }
           if (Update.end()) {
             Serial.println("OTA update complete. Rebooting...");
-            ESP.restart();
             digitalWrite(green, HIGH); // Turn on the green LED
             digitalWrite(yellow, LOW); // Turn off the yellow LED
             delay(10000); // Wait for 10 seconds
             digitalWrite(green, LOW); // Turn off the green LED
+            ESP.restart();
           } else {
             Serial.println("Error Occurred. Error #: " + String(Update.getError()));
             digitalWrite(red, HIGH); // Turn on the red LED
