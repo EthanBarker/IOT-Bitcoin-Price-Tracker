@@ -1,5 +1,8 @@
 # COM3505 Lab Assessment 1
 
+# Demo Video Link
+https://youtube.com/shorts/t2Mcnd7UsY4?feature=share
+
 # Task
 The task for Lab Assessment 1 was to "build and document a device which gives a visual indication of the stages involved in provisioning and update". We were expected to use LEDs to show the different stages of the processes at a given time. We also were expected to allow OTA updates once a button on the breadboard had been pressed. 
 
