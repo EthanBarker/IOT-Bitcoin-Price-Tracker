@@ -41,3 +41,9 @@ This displays a 404 error when the page is not found. The red LED will remain on
 
 # OTA (Over the Air)
 We performed OTA updates when the button is pressed by calling a function named performOTAUpdate(). This function works by checking for the latest firmware version from a server which in my case was my laptop. It compares the latest firmware version with the current one and if a newer version is available it then downloads the new firmware and updates the ESP32. We provide visual LED feedback with this by turning on the yellow LED when the process begins and then we either turn the green LED on if the OTA update has been successful or the red LED on if there has been a problem.
+
+# Testing
+The testing we performed on the ESP to ensure it worked was testing that the whole system worked from start to end by connecting to our home wifi using the web page on the ESP and then performing an OTA update using my laptop as the server. We also experimented with other scenarios like if the password is entered incorrectly to join a network and we also tested what would happen if the ESP could not reach the server. This covered all possible options in our head so that the red LED turns on if there has been a problem and the green LED on if a task has been successful. We considered if there was any form of unit testing we could do but we decided against it as this was only a pass/ fail lab.
+
+# Extra Notes
+I use the term "we" a lot in this readme. I did not work in a group this is just how I phrased things if it causes any confusion.
