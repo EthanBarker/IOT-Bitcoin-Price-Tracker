@@ -3,6 +3,9 @@
 # Demo Video Link
 https://youtube.com/shorts/t2Mcnd7UsY4?feature=share
 
+# IP For ESP32 webpage
+To connect to the ESP find the ESP32 in your wifi settings and press connect. The password is "password" and the web page to load is "192.168.4.1". Then you can follow the screenshot's in the images folder for how to connect to wifi using provisioning.
+
 # Task
 The task for Lab Assessment 1 was to "build and document a device which gives a visual indication of the stages involved in provisioning and update". We were expected to use LEDs to show the different stages of the processes at a given time. We also were expected to allow OTA updates once a button on the breadboard had been pressed. 
 
