@@ -1,0 +1,29 @@
+Hello Ethan Barker!
+
+My records state that you're not in a pair.
+
+(If this is incorrect please get in touch!)
+
+We've reviewed your COM3505 assessment 1 from
+https://gitlab.com/ebarker4/com3505-student-2023
+
+Congratulations, you've passed!
+
+As you know, we don't provide marks for this part of the course
+assessment, but if we _were_ doing so, we would estimate your work to
+be somewhere in the 1st quartile.
+
+That's excellent work, well done!
+
+Some feedback:
+Your documentation provides a clear and concise explanation of the
+device you have built and how it meets the requirements of the rubric.
+You have included a detailed description of the hardware and software
+components used, including the libraries, GPIO pins, and functions.
+
+The docs could be longer and use images more ;)
+
+Your C++ code looks good.
+
+Overall, good job!
+
