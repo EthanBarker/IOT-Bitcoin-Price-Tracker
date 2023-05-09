@@ -1,0 +1,11 @@
+.DS_Store
+.mkESP
+.pio
+.vscode
+.vscode/*.log
+.~lock*
+build
+private.h
+doc/html
+doc/latex
+lib

@@ -1,115 +1,205 @@
-// ProjectThing
+// ProjectThing.ino ////////////////////////////////////////////////////////////////
+// an unPhone example with a bit of everything... ////////////////////////////
+
+#include <WiFiMulti.h>          // manage WiFi connections
+#include <Adafruit_EPD.h>       // for pio LDF
+
+#if __has_include("private.h")  // for WiFi SSIDs/PSKs and LoRa config; see:
+// https://gitlab.com/hamishcunningham/the-internet-of-things/-/blob/master/support/private-template.h
+#  include "private.h"
+#endif
 #include "unPhone.h"
-#include <lvgl.h>
-#include <TFT_eSPI.h>
 
-unPhone u = unPhone();
-long my_mapper(long, long, long, long, long);
+unPhone u = unPhone("ProjectThing");
 
-static const uint16_t screenWidth  = 480;
-static const uint16_t screenHeight = 320;
+static uint32_t loopIter = 0;   // time slicing iterator
+bool useWifi = true;            // toggle wifi connection
+WiFiMulti wifiMulti;            // manage...
+void wifiSetup();               // ...the wifi...
+void wifiConnectTask(void *);   // ...connection
 
-static lv_disp_draw_buf_t draw_buf;
-static lv_color_t buf[ screenWidth * 10 ];
+void setup() { ///////////////////////////////////////////////////////////////
+  // say hi, init, blink etc.
+  Serial.begin(115200);
+  Serial.printf("Starting build from: %s\n", u.buildTime);
+  u.begin();
+  u.store(u.buildTime);
 
-TFT_eSPI tft = TFT_eSPI(screenWidth, screenHeight);
+  // if all three buttons pressed, go into factory test mode
+#if UNPHONE_FACTORY_MODE == 1
+  if(u.button1() && u.button2() && u.button3()) {
+    u.factoryTestMode(true);
+    u.factoryTestSetup();
+    return;
+  }
+#endif
 
-void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p) {
-  uint32_t w = (area->x2 - area->x1 + 1);
-  uint32_t h = (area->y2 - area->y1 + 1);
+  // power management
+  u.printWakeupReason();        // what woke us up?
+  u.checkPowerSwitch();         // if power switch is off, shutdown
+  Serial.printf("battery voltage = %3.3f\n", u.batteryVoltage());
+  Serial.printf("enabling expander power\n");
+  u.expanderPower(true);        // turn expander power on
 
-  tft.startWrite();
-  tft.setAddrWindow(area->x1, area->y1, w, h);
-  tft.pushColors((uint16_t *)&color_p->full, w * h, true);
-  tft.endWrite();
+  // flash the internal RGB LED and then the IR_LEDs
+  u.ir(true); u.rgb(0, 0, 0);
+  u.rgb(1, 0, 0); delay(300); u.rgb(0, 1, 0); delay(300);
+  u.expanderPower(false);       // expander power off
+  u.rgb(0, 0, 1); delay(300); u.rgb(1, 0, 0); delay(300);
+  u.expanderPower(true);        // expander power on
+  u.ir(false);
+  u.rgb(0, 1, 0); delay(300); u.rgb(0, 0, 1); delay(300);
+  for(uint8_t i = 0; i<4; i++) {
+    u.ir(true);  delay(300);
+    u.expanderPower(false);     // expander power on
+    u.ir(false); delay(300);
+    u.expanderPower(true);      // expander power on
+  }
+  u.rgb(0, 0, 0);
 
-  lv_disp_flush_ready(disp);
+  // buzz a bit
+  for(int i = 0; i < 3; i++) {
+    u.vibe(true);  delay(150);
+    u.vibe(false); delay(150);
+  }
+  u.printStore();               // print out stored messages
+
+  // get a connection and run the wifi connection task
+  if(useWifi) {
+    Serial.println("trying to connect to wifi...");
+    wifiSetup();
+    xTaskCreate(wifiConnectTask, "wifi connect task", 4096, NULL, 1, NULL);
+  }
+
+  u.provisioned();              // redisplay the UI for example
+  // ledTest(); // TODO on spin 7 LEDs don't work when UI0 is enabled
+  Serial.println("done with setup()");
 }
 
-long my_mapper(long x, long in_min, long in_max, long out_min, long out_max) {
-  long probable =
-  (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-  if(probable < out_min) return out_min;
-  if(probable > out_max) return out_max;
-  return probable;
+void loop() { ////////////////////////////////////////////////////////////////
+#if UNPHONE_FACTORY_MODE == 1
+  if(u.factoryTestMode()) { u.factoryTestLoop(); return; }
+#endif
+
+  // send a couple of TTN messages for testing purposes
+  if(loopIter++ == 0)
+    u.loraSend("first time: UNPHONE_SPIN=%d MAC=%s", UNPHONE_SPIN, u.getMAC());
+  else if(loopIter == 20000000)
+    u.loraSend("20000000: UNPHONE_SPIN=%d MAC=%s", UNPHONE_SPIN, u.getMAC());
+
+  if(loopIter % 25000 == 0) // allow IDLE; 100 is min to allow it to fire:
+    delay(100);  // https://github.com/espressif/arduino-esp32/issues/6946
 }
 
-void my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data) {
-  uint16_t touchX, touchY;
-  bool touched = u.tsp->touched();
+void wifiSetup() { ///////////////////////////////////////////////////////////
+    // Connect to Wi-Fi
+  const char* ssid = "FLAT-6-5G";
+  const char* password = "ptpassword";
 
-  if(!touched) {
-    data->state = LV_INDEV_STATE_REL;
-  } else {
-    data->state = LV_INDEV_STATE_PR;
+  WiFi.begin(ssid, password);
+  
+#ifdef _MULTI_SSID1
+  Serial.printf("wifiMulti.addAP %s\n", _MULTI_SSID1);
+  wifiMulti.addAP(_MULTI_SSID1, _MULTI_KEY1);
+#endif
+#ifdef _MULTI_SSID2
+  Serial.printf("wifiMulti.addAP %s\n", _MULTI_SSID2);
+  wifiMulti.addAP(_MULTI_SSID2, _MULTI_KEY2);
+#endif
+#ifdef _MULTI_SSID3
+  Serial.printf("wifiMulti.addAP %s\n", _MULTI_SSID3);
+  wifiMulti.addAP(_MULTI_SSID3, _MULTI_KEY3);
+#endif
+#ifdef _MULTI_SSID4
+  Serial.printf("wifiMulti.addAP %s\n", _MULTI_SSID4);
+  wifiMulti.addAP(_MULTI_SSID4, _MULTI_KEY4);
+#endif
+#ifdef _MULTI_SSID5
+  Serial.printf("wifiMulti.addAP %s\n", _MULTI_SSID5);
+  wifiMulti.addAP(_MULTI_SSID5, _MULTI_KEY5);
+#endif
+#ifdef _MULTI_SSID6
+  Serial.printf("wifiMulti.addAP %s\n", _MULTI_SSID6);
+  wifiMulti.addAP(_MULTI_SSID6, _MULTI_KEY6);
+#endif
+#ifdef _MULTI_SSID7
+  Serial.printf("wifiMulti.addAP %s\n", _MULTI_SSID7);
+  wifiMulti.addAP(_MULTI_SSID7, _MULTI_KEY7);
+#endif
+#ifdef _MULTI_SSID8
+  Serial.printf("wifiMulti.addAP 8\n");
+  wifiMulti.addAP(_MULTI_SSID8, _MULTI_KEY8);
+#endif
+}
 
-    TS_Point p(-1, -1, -1);
-    p = u.tsp->getPoint();
+static bool wifiConnected = false; ///////////////////////////////////////////
+void wifiConnectTask(void *param) {
+  while(true) {
+    bool previousWifiState = wifiConnected;
+    if(wifiMulti.run() == WL_CONNECTED)
+      wifiConnected = true;
+    else
+      wifiConnected = false;
 
-    long xMin = 320;
-    long xMax = 3945;
-    long yMin = 420;
-    long yMax = 3915;
+    // call back to UI controller if state has changed
+    if(previousWifiState != wifiConnected) {
+      previousWifiState = wifiConnected;
+      u.provisioned();
+    }
 
-    long xscld = my_mapper((long)p.x, xMin, xMax, 0, (long)screenWidth);
-    long yscld = (long)screenHeight - my_mapper((long)p.y, yMin, yMax, 0, (long)screenHeight);
-    touchX = (uint16_t)xscld;
-    touchY = (uint16_t)yscld;
-
-    data->point.x = touchX;
-    data->point.y = touchY;
+    delay(1000);
   }
 }
 
-void setup() {
-  Serial.begin(115200);
+void ledTest() { // cycle through LEDs
+  /*
+  D("IR OFF\n") u.ir(false);
+  #if UNPHONE_SPIN == 9
+  D("red on 13 LOW\n")       unPhoneTCA::digitalWrite(13, LOW);     delay(4000);
+  D("red on 13 HIGH\n")      unPhoneTCA::digitalWrite(13, HIGH);    delay(4000);
+  #else
+  D("red on 8|0x40 HIGH\n")  unPhoneTCA::digitalWrite(8|0x40,HIGH);delay(4000);
+  D("red on 8|0x40 LOW\n")   unPhoneTCA::digitalWrite(8|0x40, LOW);  delay(4000);
+  #endif
+  D("green 9|0x40 LOW\n")    unPhoneTCA::digitalWrite(9|0x40, LOW); delay(4000);
+  D("green on 9|0x40 HIGH\n")unPhoneTCA::digitalWrite(9|0x40, HIGH);delay(4000);
+  D("IR on\n") u.ir(true);
+  D("red on 13 LOW\n")       unPhoneTCA::digitalWrite(13, LOW);     delay(4000);
+  D("red on 13 HIGH\n")      unPhoneTCA::digitalWrite(13, HIGH);    delay(4000);
+  D("blue on 13|0x40 LOW\n") unPhoneTCA::digitalWrite(13|0x40, LOW);delay(4000);
+  D("blue on 13|0x40 HIGH\n")unPhoneTCA::digitalWrite(13|0x40,HIGH);delay(4000);
+  */
+  // note that LoRa uses the RED LED if USE_LED is true
+  D("\nLED pins:\n") // the pins & 0x40 (bit 7) gives their non-TCA9555 value
+  D("u.IR_LEDS = %#02X,   %3u\n",  u.IR_LEDS,   u.IR_LEDS   & 0b10111111)
+  D("LED_BUILTIN=%#02X,   %3u\n",  LED_BUILTIN, LED_BUILTIN & 0b10111111)
+  D("u.LED_RED = %#02X,   %2u\n",  u.LED_RED,   u.LED_RED   & 0b10111111)
+  D("u.LED_GREEN = %#02X, %2u\n",  u.LED_GREEN, u.LED_GREEN & 0b10111111)
+  D("u.LED_BLUE = %#02X,  %2u\n",  u.LED_BLUE,  u.LED_BLUE  & 0b10111111)
+  delay(4000);
+  D("IR...\n")
+  D("IR ON\n")    u.ir(true);     delay(4000);
+  D("IR OFF\n")   u.ir(false);    delay(4000);
+  D("RGB...\n")
+  delay(4000);
+  D("000 off\n")  u.rgb(0, 0, 0); delay(4000); // off
+  D("111 all\n")  u.rgb(1, 1, 1); delay(4000); // all
+  D("110 r+g\n")  u.rgb(1, 1, 0); delay(4000); // red + green
+  D("101 r+b\n")  u.rgb(1, 0, 1); delay(4000); // red + blue
+  D("011 g+b\n")  u.rgb(0, 1, 1); delay(4000); // green + blue
+  D("100 red\n")  u.rgb(1, 0, 0); delay(4000); // red
+  D("010 grn\n")  u.rgb(0, 1, 0); delay(4000); // green
+  D("001 blue\n") u.rgb(0, 0, 1); delay(4000); // blue
+  D("000 off\n")  u.rgb(0, 0, 0); delay(4000); // off
 
-  u.begin();
-  u.tftp = (void *)&tft;
-  u.tsp->setRotation(1);
-  u.backlight(true);
-
-  String LVGL_Arduino = "Hello Arduino! ";
-  LVGL_Arduino +=
-      String('V') + lv_version_major() + "." +
-      lv_version_minor() + "." + lv_version_patch();
-
-  Serial.println(LVGL_Arduino);
-
-  lv_init();
-  tft.begin();
-  tft.setRotation(1);
-
-  lv_disp_draw_buf_init(&draw_buf, buf, NULL, screenWidth * 10);
-
-  static lv_disp_drv_t disp_drv;
-  lv_disp_drv_init(&disp_drv);
-  disp_drv.hor_res = screenWidth;
-  disp_drv.ver_res = screenHeight;
-  disp_drv.flush_cb = my_disp_flush;
-  disp_drv.draw_buf = &draw_buf;
-  lv_disp_drv_register(&disp_drv);
-
-  static lv_indev_drv_t indev_drv;
-  lv_indev_drv_init(&indev_drv);
-  indev_drv.type = LV_INDEV_TYPE_POINTER;
-  indev_drv.read_cb = my_touchpad_read;
-  lv_indev_drv_register(&indev_drv);
-
-  /* Create a blank screen with a white background */
-  lv_obj_t *blank_screen = lv_obj_create(lv_scr_act());
-  lv_obj_set_size(blank_screen, screenWidth, screenHeight);
-  lv_obj_set_style_bg_color(blank_screen, lv_color_hex(0xFFFFFF), 0);
-
-  // Create a label for displaying "hello"
-  lv_obj_t *label = lv_label_create(blank_screen);
-  lv_label_set_text(label, "hello");
-  lv_obj_center(label); // Align the label to the center of its parent (blank_screen)
-
-  Serial.println("Setup done");
-}
-
-void loop() {
-  lv_timer_handler(); /* let the GUI do its work */
-  delay(5);
+  D("\nRGB+IR\n") u.ir(true);     delay(4000);
+  D("111 all\n")  u.rgb(1, 1, 1); delay(4000); // all
+  D("110 r+g\n")  u.rgb(1, 1, 0); delay(4000); // red + green
+  D("101 r+b\n")  u.rgb(1, 0, 1); delay(4000); // red + blue
+  D("011 g+b\n")  u.rgb(0, 1, 1); delay(4000); // green + blue
+  D("100 red\n")  u.rgb(1, 0, 0); delay(4000); // red
+  D("010 grn\n")  u.rgb(0, 1, 0); delay(4000); // green
+  D("001 blue\n") u.rgb(0, 0, 1); delay(4000); // blue
+  D("000 off\n")  u.rgb(0, 0, 0); delay(4000); // off
+  D("IR OFF\n")   u.ir(false);    delay(4000);
 }
