@@ -458,10 +458,17 @@ void WifiUIElement::runEachTurn() {
 }
 
 void WifiUIElement::scanNetworks() {
+  Serial.print("Number of networks found: ");
+  Serial.println(numberOfNetworks);
+  numberOfNetworks = 0;
   numberOfNetworks = WiFi.scanNetworks();
   networkNames.clear();
   
   for (int i = 0; i < numberOfNetworks; ++i) {
+    Serial.print("Network ");
+    Serial.print(i + 1);
+    Serial.print(": ");
+    Serial.println(WiFi.SSID(i));
     networkNames.push_back(WiFi.SSID(i));
   }
 }
