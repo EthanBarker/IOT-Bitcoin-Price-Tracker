@@ -1,4 +1,4 @@
-// UIController.cpp //////////////////////////////////////////////////////////
+// unPhoneUI0.cpp //////////////////////////////////////////////////////////
 
 #if UNPHONE_UI0 == 1
 #include "unPhoneUI0.h"
@@ -14,8 +14,9 @@ bool UIController::provisioned = false;
 const char *UIController::ui_mode_names[] = {
   "Menu",
   "Home",
+  "Wifi",
 };
-uint8_t UIController::NUM_UI_ELEMENTS = 2;  // number of UI elements
+uint8_t UIController::NUM_UI_ELEMENTS = 3;  // number of UI elements
 
 // keep Arduino IDE compiler happy /////////////////////////////////////////
 UIElement::UIElement(Adafruit_HX8357* tftp, XPT2046_Touchscreen* tsp, SdFat *sdp) {
@@ -66,6 +67,8 @@ UIElement* UIController::allocateUIElement(ui_modes_t newMode) {
       m_element = m_menu;                                               break;
     case ui_configure:
       m_element = new ConfigUIElement(up->tftp, up->tsp, up->sdp);      break;
+    case ui_wifi: 
+      m_element = new WifiUIElement(up->tftp, up->tsp, up->sdp);        break;  
     default:
       Serial.printf("invalid UI mode %d in allocateUIElement\n", newMode);
       m_element = m_menu;
@@ -116,6 +119,7 @@ const char *UIController::modeName(ui_modes_t m) {
   switch(m) {
     case ui_menu:               return "ui_menu";          break;
     case ui_configure:          return "ui_configure";     break;
+    case ui_wifi:               return "ui_wifi";          break; // Add this line
     default:
       D("invalid UI mode %d in allocateUIElement\n", m)
       return "invalid UI mode";
@@ -435,4 +439,41 @@ void MenuUIElement::draw(){
 void MenuUIElement::runEachTurn(){ // text page UI, run each turn
   // do nothing
 }
+//////////////////////////////////////////////////////////////////////////////
+void WifiUIElement::draw() {
+  m_tft->fillScreen(BLACK);
+  scanNetworks();
+  displayNetworks();
+}
+
+bool WifiUIElement::handleTouch(long x, long y) {
+  // Add any touch handling code here
+
+  // Return false to indicate that the touch event has not resulted in a UI mode change
+  return false;
+}
+
+void WifiUIElement::runEachTurn() {
+  // No code to run each turn
+}
+
+void WifiUIElement::scanNetworks() {
+  numberOfNetworks = WiFi.scanNetworks();
+  networkNames.clear();
+  
+  for (int i = 0; i < numberOfNetworks; ++i) {
+    networkNames.push_back(WiFi.SSID(i));
+  }
+}
+
+void WifiUIElement::displayNetworks() {
+  m_tft->setTextColor(WHITE);
+  m_tft->setTextSize(2);
+
+  for (int i = 0; i < numberOfNetworks; ++i) {
+    m_tft->setCursor(10, 10 + i * 20);
+    m_tft->println(networkNames[i]);
+  }
+}
+//////////////////////////////////////////////////////////////////////////////
 #endif // PREDICTOR_MAIN

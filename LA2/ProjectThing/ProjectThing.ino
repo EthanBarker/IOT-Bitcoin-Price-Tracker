@@ -93,8 +93,8 @@ void loop() { ////////////////////////////////////////////////////////////////
 
 void wifiSetup() { ///////////////////////////////////////////////////////////
     // Connect to Wi-Fi
-  const char* ssid = "FLAT-6-5G";
-  const char* password = "ptpassword";
+  const char* ssid = "Ephone";
+  const char* password = "password";
 
   WiFi.begin(ssid, password);
   
