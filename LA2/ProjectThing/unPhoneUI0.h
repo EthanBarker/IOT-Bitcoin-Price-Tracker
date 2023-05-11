@@ -120,6 +120,7 @@ class WifiUIElement : public UIElement {
     virtual void runEachTurn();
     void scanNetworks();
     void displayNetworks();
+    void initWiFi(); 
 };
 
 

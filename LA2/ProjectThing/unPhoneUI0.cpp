@@ -457,12 +457,30 @@ void WifiUIElement::runEachTurn() {
   // No code to run each turn
 }
 
+void WifiUIElement::initWiFi() {
+  // Set WiFi mode to station
+  WiFi.mode(WIFI_STA);
+
+  // Disconnect from any previous network
+  WiFi.disconnect();
+  
+  // Wait for the WiFi module to be ready
+  delay(100);
+}
+
 void WifiUIElement::scanNetworks() {
+  // Initialize WiFi
+  initWiFi();
+
   Serial.print("Number of networks found: ");
   Serial.println(numberOfNetworks);
-  numberOfNetworks = 0;
   numberOfNetworks = WiFi.scanNetworks();
   networkNames.clear();
+  
+  if (numberOfNetworks == -1) {
+    Serial.println("Error scanning for networks. Please check the WiFi connection.");
+    return;
+  }
   
   for (int i = 0; i < numberOfNetworks; ++i) {
     Serial.print("Network ");

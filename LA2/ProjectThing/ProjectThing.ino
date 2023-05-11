@@ -92,12 +92,6 @@ void loop() { ////////////////////////////////////////////////////////////////
 }
 
 void wifiSetup() { ///////////////////////////////////////////////////////////
-    // Connect to Wi-Fi
-  const char* ssid = "Ephone";
-  const char* password = "password";
-
-  WiFi.begin(ssid, password);
-  
 #ifdef _MULTI_SSID1
   Serial.printf("wifiMulti.addAP %s\n", _MULTI_SSID1);
   wifiMulti.addAP(_MULTI_SSID1, _MULTI_KEY1);
