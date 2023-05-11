@@ -15,8 +15,9 @@ const char *UIController::ui_mode_names[] = {
   "Menu",
   "Home",
   "Wifi",
+  "Bitcoin",
 };
-uint8_t UIController::NUM_UI_ELEMENTS = 3;  // number of UI elements
+uint8_t UIController::NUM_UI_ELEMENTS = 4;  // number of UI elements
 
 // keep Arduino IDE compiler happy /////////////////////////////////////////
 UIElement::UIElement(Adafruit_HX8357* tftp, XPT2046_Touchscreen* tsp, SdFat *sdp) {
@@ -68,7 +69,9 @@ UIElement* UIController::allocateUIElement(ui_modes_t newMode) {
     case ui_configure:
       m_element = new ConfigUIElement(up->tftp, up->tsp, up->sdp);      break;
     case ui_wifi: 
-      m_element = new WifiUIElement(up->tftp, up->tsp, up->sdp);        break;  
+      m_element = new WifiUIElement(up->tftp, up->tsp, up->sdp);        break; 
+    case ui_bitcoin_price:
+      m_element = new BitcoinPriceUIElement(up->tftp, up->tsp, up->sdp); break;       
     default:
       Serial.printf("invalid UI mode %d in allocateUIElement\n", newMode);
       m_element = m_menu;
@@ -119,7 +122,8 @@ const char *UIController::modeName(ui_modes_t m) {
   switch(m) {
     case ui_menu:               return "ui_menu";          break;
     case ui_configure:          return "ui_configure";     break;
-    case ui_wifi:               return "ui_wifi";          break; // Add this line
+    case ui_wifi:               return "ui_wifi";          break;
+    case ui_bitcoin_price:      return "Bitcoin Price";    break;
     default:
       D("invalid UI mode %d in allocateUIElement\n", m)
       return "invalid UI mode";
@@ -444,13 +448,17 @@ void WifiUIElement::draw() {
   m_tft->fillScreen(BLACK);
   scanNetworks();
   displayNetworks();
+
+  // Draw the back arrow
+  m_tft->fillTriangle(10, 200, 50, 230, 50, 170, WHITE);  
 }
 
 bool WifiUIElement::handleTouch(long x, long y) {
-  // Add any touch handling code here
-
-  // Return false to indicate that the touch event has not resulted in a UI mode change
-  return false;
+  // Check if the back arrow was touched
+  if (x >= 10 && x <= 50 && y >= 170 && y <= 230) {
+    return true; // Go back to the main menu
+  }
+  return false; // Stay on the current screen
 }
 
 void WifiUIElement::runEachTurn() {
@@ -499,6 +507,39 @@ void WifiUIElement::displayNetworks() {
     m_tft->setCursor(10, 10 + i * 20);
     m_tft->println(networkNames[i]);
   }
+}
+//////////////////////////////////////////////////////////////////////////////
+void BitcoinPriceUIElement::updateBitcoinPrice() {
+}
+
+void BitcoinPriceUIElement::draw() {
+  updateBitcoinPrice();
+
+  m_tft->fillScreen(BLACK);
+  m_tft->setTextColor(WHITE);
+  m_tft->setTextSize(2);
+  m_tft->setCursor(10, 10);
+  m_tft->print("Bitcoin Price:");
+
+  m_tft->setTextSize(3);
+  m_tft->setCursor(10, 50);
+  m_tft->print("$" + bitcoin_price);
+
+  // Draw the back arrow
+  m_tft->fillTriangle(10, 200, 50, 230, 50, 170, WHITE);
+}
+
+
+bool BitcoinPriceUIElement::handleTouch(long x, long y) {
+  // Check if the back arrow was touched
+  if (x >= 10 && x <= 50 && y >= 170 && y <= 230) {
+    return true; // Go back to the main menu
+  }
+  return false; // Stay on the current screen
+}
+
+void BitcoinPriceUIElement::runEachTurn() {
+  // Add any periodic tasks here if needed
 }
 //////////////////////////////////////////////////////////////////////////////
 #endif // PREDICTOR_MAIN

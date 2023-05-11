@@ -52,7 +52,8 @@ class UIElement { ///////////////////////////////////////////////////////////
 enum ui_modes_t {
   ui_menu = 0,          //  0
   ui_configure,         //  1 (home)
-  ui_wifi               //  2 (wifi)
+  ui_wifi,               //  2 (wifi)
+  ui_bitcoin_price      //  3 (bitcoin)
 };
 
 class UIController { ////////////////////////////////////////////////////////
@@ -121,6 +122,18 @@ class WifiUIElement : public UIElement {
     void scanNetworks();
     void displayNetworks();
     void initWiFi(); 
+};
+
+class BitcoinPriceUIElement : public UIElement {
+public:
+  BitcoinPriceUIElement(Adafruit_HX8357* tft, XPT2046_Touchscreen* ts, SdFat* sd)
+    : UIElement(tft, ts, sd) {}
+  void draw();
+  void updateBitcoinPrice();
+  bool handleTouch(long x, long y);
+  void runEachTurn(); // Add this line
+private:
+  String bitcoin_price = "";
 };
 
 

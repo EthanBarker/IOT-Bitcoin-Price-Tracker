@@ -3,6 +3,8 @@
 
 #include <WiFiMulti.h>          // manage WiFi connections
 #include <Adafruit_EPD.h>       // for pio LDF
+#include <HTTPClient.h>
+#include <ArduinoJson.h>
 
 #if __has_include("private.h")  // for WiFi SSIDs/PSKs and LoRa config; see:
 // https://gitlab.com/hamishcunningham/the-internet-of-things/-/blob/master/support/private-template.h
