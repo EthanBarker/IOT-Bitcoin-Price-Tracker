@@ -512,6 +512,8 @@ void WifiUIElement::displayNetworks() {
 }
 //////////////////////////////////////////////////////////////////////////////
 void BitcoinPriceUIElement::updateBitcoinPrice() {
+  // Store the previous price before updating
+  previous_price = bitcoin_price.toFloat();  
   HTTPClient http;
   http.begin("https://api.coinbase.com/v2/prices/spot?currency=USD");
   int httpCode = http.GET();
@@ -544,6 +546,15 @@ void BitcoinPriceUIElement::draw() {
 
   // Draw the back arrow
   m_tft->fillTriangle(10, 200, 50, 230, 50, 170, WHITE);
+
+  // Draw the arrow
+  m_tft->setTextSize(3);
+  m_tft->setCursor(200, 50);
+  if (bitcoin_price.toFloat() > previous_price) {
+    m_tft->print((char)24); // Up arrow
+  } else if (bitcoin_price.toFloat() < previous_price) {
+    m_tft->print((char)25); // Down arrow
+  }  
 }
 
 
@@ -555,8 +566,20 @@ bool BitcoinPriceUIElement::handleTouch(long x, long y) {
   return false; // Stay on the current screen
 }
 
+unsigned long previousMillis = 0;
+const long interval = 20000; 
+
 void BitcoinPriceUIElement::runEachTurn() {
-  // Add any periodic tasks here if needed
+  unsigned long currentMillis = millis();
+
+  if (currentMillis - previousMillis >= interval) {
+    // Save the last time the Bitcoin price was updated
+    previousMillis = currentMillis;
+
+    // Update and redraw the Bitcoin price
+    updateBitcoinPrice();
+    draw();
+  }
 }
 //////////////////////////////////////////////////////////////////////////////
 #endif // PREDICTOR_MAIN
