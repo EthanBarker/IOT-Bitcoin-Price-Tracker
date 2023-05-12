@@ -4,6 +4,8 @@
 #include "unPhoneUI0.h"
 #include <WiFi.h>                 // status for config scrn
 #include <Adafruit_ImageReader.h> // image-reading for test card scrn
+#include <HTTPClient.h>
+#include <ArduinoJson.h>
 
 static unPhone *up;
 
@@ -510,6 +512,21 @@ void WifiUIElement::displayNetworks() {
 }
 //////////////////////////////////////////////////////////////////////////////
 void BitcoinPriceUIElement::updateBitcoinPrice() {
+  HTTPClient http;
+  http.begin("https://api.coinbase.com/v2/prices/spot?currency=USD");
+  int httpCode = http.GET();
+
+  if (httpCode == HTTP_CODE_OK) {
+    String payload = http.getString();
+    DynamicJsonDocument doc(1024);
+    deserializeJson(doc, payload);
+    bitcoin_price = doc["data"]["amount"].as<String>();
+  } else {
+    Serial.print("Error fetching Bitcoin price: ");
+    Serial.println(http.errorToString(httpCode));
+  }
+
+  http.end();
 }
 
 void BitcoinPriceUIElement::draw() {
