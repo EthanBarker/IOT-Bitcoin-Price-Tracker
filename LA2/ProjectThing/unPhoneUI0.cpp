@@ -540,26 +540,24 @@ void BitcoinPriceUIElement::updateBitcoinPrice() {
 void BitcoinPriceUIElement::draw() {
   m_tft->fillScreen(BLACK);
   m_tft->setTextColor(WHITE);
-  m_tft->setTextSize(2);
-  m_tft->setCursor(10, 10);
+  m_tft->setTextSize(4);
+  m_tft->setCursor(20, 20);
   m_tft->print("Bitcoin Price:");
 
-  // Draw the back box
-  m_tft->fillRect(0, 290, 240, 30, WHITE);
+  // Draw the back button
+  m_tft->fillRoundRect(0, 440, 640, 40, 5, WHITE);
   m_tft->setTextColor(BLACK);
-  m_tft->setTextSize(2);
-  m_tft->setCursor(80, 293);
-  m_tft->print("Back to Menu");
-
-  // Draw the arrow below the text
-  m_tft->fillTriangle(120, 310, 110, 300, 130, 300, BLACK);
+  m_tft->setTextSize(3);
+  m_tft->setCursor(250, 445);
+  m_tft->print("Back to Menu ");
+  m_tft->print((char)24); // Arrow pointing left
 
   // Draw the buttons
-  m_tft->setTextSize(2);
+  m_tft->setTextSize(3);
   for (int i = 0; i < 6; i++) {
-    m_tft->fillRect(buttonPositions[i][0], buttonPositions[i][1], 70, 30, WHITE);
+    m_tft->fillRoundRect(buttonPositions[i][0], buttonPositions[i][1], 150, 60, 5, WHITE);
     m_tft->setTextColor(BLACK);
-    m_tft->setCursor(buttonPositions[i][0] + 20, buttonPositions[i][1] + 10);
+    m_tft->setCursor(buttonPositions[i][0] + 50, buttonPositions[i][1] + 20);
     m_tft->print(buttonTexts[i]);
     m_tft->setTextColor(WHITE);
   }
@@ -568,14 +566,14 @@ void BitcoinPriceUIElement::draw() {
 }
 
 bool BitcoinPriceUIElement::handleTouch(long x, long y) {
-  // Check if the back box was touched
-  if (x >= 0 && x <= 240 && y >= 290 && y <= 320) {
+  // Check if the back button was touched
+  if (y >= 440 && y <= 480) {
     return true; // Go back to the main menu
   }
 
   // Check if any refresh rate buttons were touched
   for (int i = 0; i < 6; i++) {
-    if (x >= buttonPositions[i][0] && x <= buttonPositions[i][0] + 70 && y >= buttonPositions[i][1] && y <= buttonPositions[i][1] + 30) {
+    if (x >= buttonPositions[i][0] && x <= buttonPositions[i][0] + 150 && y >= buttonPositions[i][1] && y <= buttonPositions[i][1] + 60) {
       refreshRateIndex = i;
       break;
     }
@@ -588,7 +586,7 @@ void BitcoinPriceUIElement::updateAndDrawPrice() {
   updateBitcoinPrice();
 
   // Clear the previous price and arrow
-  m_tft->fillRect(10, 50, 260, 30, BLACK);
+  m_tft->fillRect(20, 100, 600, 50, BLACK);
 
   // Buffer to store the formatted price string
   char formatted_price[10];
@@ -604,14 +602,14 @@ void BitcoinPriceUIElement::updateAndDrawPrice() {
     m_tft->setTextColor(WHITE);
   }
 
-  m_tft->setTextSize(4);
-  m_tft->setCursor(10, 50);
+  m_tft->setTextSize(5);
+  m_tft->setCursor(20, 100);
   m_tft->print("$");
   m_tft->print(formatted_price); // Print the formatted price
 
   // Draw the arrow
-  m_tft->setTextSize(4);
-  m_tft->setCursor(240, 50);
+  m_tft->setTextSize(5);
+  m_tft->setCursor(530, 100);
   if (bitcoin_price.toFloat() > previous_price) {
     m_tft->print((char)24); // Up arrow
   } else if (bitcoin_price.toFloat() < previous_price) {
