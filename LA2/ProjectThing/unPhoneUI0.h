@@ -127,7 +127,8 @@ class WifiUIElement : public UIElement {
 class BitcoinPriceUIElement : public UIElement {
 private:
   String bitcoin_price = "";
-  float previous_price = 0;   
+  float previous_price = 0;
+  unsigned long messageClearTime;   
 public:
   BitcoinPriceUIElement(Adafruit_HX8357* tft, XPT2046_Touchscreen* ts, SdFat* sd)
     : UIElement(tft, ts, sd) {}
@@ -136,6 +137,7 @@ public:
   void updateAndDrawPrice();
   bool handleTouch(long x, long y);
   void runEachTurn(); 
+  void showRefreshRateChangeMessage();
 };
 
 

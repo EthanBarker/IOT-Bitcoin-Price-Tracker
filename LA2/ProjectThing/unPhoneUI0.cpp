@@ -567,14 +567,15 @@ void BitcoinPriceUIElement::draw() {
 
 bool BitcoinPriceUIElement::handleTouch(long x, long y) {
   // Check if the back button was touched
-  if (y >= 430 && y <= 480) {
+  if (y >= 420 && y <= 460) {
     return true; // Go back to the main menu
   }
 
   // Check if any refresh rate buttons were touched
   for (int i = 0; i < 6; i++) {
-    if (x >= buttonPositions[i][0] && x <= buttonPositions[i][0] + 145 && y >= buttonPositions[i][1] && y <= buttonPositions[i][1] + 50) {
+    if (x >= buttonPositions[i][0] && x <= buttonPositions[i][0] + 90 && y >= buttonPositions[i][1] && y <= buttonPositions[i][1] + 40) {
       refreshRateIndex = i;
+      showRefreshRateChangeMessage(); // Call the function when a button is pressed
       break;
     }
   }
@@ -625,6 +626,12 @@ const long interval = 10000;
 void BitcoinPriceUIElement::runEachTurn() {
   unsigned long currentMillis = millis();
 
+  // Check if it's time to clear the refresh rate change message
+  if (messageClearTime > 0 && currentMillis - messageClearTime >= 5000) {
+    m_tft->fillRect(0, 375, 320, 20, BLACK); // Clear the message area
+    messageClearTime = 0; // Reset the message clear time
+  }
+
   if (currentMillis - previousMillis >= refreshRates[refreshRateIndex]) {
     // Save the last time the Bitcoin price was updated
     previousMillis = currentMillis;
@@ -632,6 +639,21 @@ void BitcoinPriceUIElement::runEachTurn() {
     // Update and redraw the Bitcoin price
     updateAndDrawPrice(); 
   }
+}
+
+void BitcoinPriceUIElement::showRefreshRateChangeMessage() {
+  // Clear the previous message, if any
+  m_tft->fillRect(0, 375, 320, 20, BLACK);
+
+  // Show the new message
+  m_tft->setTextSize(2);
+  m_tft->setTextColor(WHITE);
+  m_tft->setCursor(10, 375);
+  m_tft->print("Refresh rate changed to ");
+  m_tft->print(buttonTexts[refreshRateIndex]);
+
+  // Set the time when the message should be cleared
+  messageClearTime = millis();
 }
 //////////////////////////////////////////////////////////////////////////////
 #endif // PREDICTOR_MAIN
