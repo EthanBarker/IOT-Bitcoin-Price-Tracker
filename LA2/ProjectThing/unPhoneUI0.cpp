@@ -532,29 +532,16 @@ void BitcoinPriceUIElement::updateBitcoinPrice() {
 }
 
 void BitcoinPriceUIElement::draw() {
-  updateBitcoinPrice();
-
   m_tft->fillScreen(BLACK);
   m_tft->setTextColor(WHITE);
   m_tft->setTextSize(2);
   m_tft->setCursor(10, 10);
   m_tft->print("Bitcoin Price:");
 
-  m_tft->setTextSize(3);
-  m_tft->setCursor(10, 50);
-  m_tft->print("$" + bitcoin_price);
-
   // Draw the back arrow
   m_tft->fillTriangle(10, 200, 50, 230, 50, 170, WHITE);
 
-  // Draw the arrow
-  m_tft->setTextSize(3);
-  m_tft->setCursor(200, 50);
-  if (bitcoin_price.toFloat() > previous_price) {
-    m_tft->print((char)24); // Up arrow
-  } else if (bitcoin_price.toFloat() < previous_price) {
-    m_tft->print((char)25); // Down arrow
-  }  
+  updateAndDrawPrice(); 
 }
 
 
@@ -566,8 +553,38 @@ bool BitcoinPriceUIElement::handleTouch(long x, long y) {
   return false; // Stay on the current screen
 }
 
+void BitcoinPriceUIElement::updateAndDrawPrice() {
+  updateBitcoinPrice();
+
+  // Clear the previous price and arrow
+  m_tft->fillRect(10, 50, 240, 30, BLACK);
+
+  // Buffer to store the formatted price string
+  char formatted_price[10];
+
+  // Format the price with two decimal places
+  sprintf(formatted_price, "%.2f", bitcoin_price.toFloat());
+
+  m_tft->setTextColor(WHITE);
+  m_tft->setTextSize(3);
+  m_tft->setCursor(10, 50);
+  m_tft->print("$");
+  m_tft->print(formatted_price); // Print the formatted price
+
+  // Draw the arrow or dash
+  m_tft->setTextSize(3);
+  m_tft->setCursor(200, 50);
+  if (bitcoin_price.toFloat() > previous_price) {
+    m_tft->print((char)24); // Up arrow
+  } else if (bitcoin_price.toFloat() < previous_price) {
+    m_tft->print((char)25); // Down arrow
+  } else {
+    m_tft->print("-"); // Dash for no change
+  }
+}
+
 unsigned long previousMillis = 0;
-const long interval = 20000; 
+const long interval = 10000; 
 
 void BitcoinPriceUIElement::runEachTurn() {
   unsigned long currentMillis = millis();
@@ -577,8 +594,7 @@ void BitcoinPriceUIElement::runEachTurn() {
     previousMillis = currentMillis;
 
     // Update and redraw the Bitcoin price
-    updateBitcoinPrice();
-    draw();
+    updateAndDrawPrice(); 
   }
 }
 //////////////////////////////////////////////////////////////////////////////

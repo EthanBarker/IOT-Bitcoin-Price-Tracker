@@ -133,6 +133,7 @@ public:
     : UIElement(tft, ts, sd) {}
   void draw();
   void updateBitcoinPrice();
+  void updateAndDrawPrice();
   bool handleTouch(long x, long y);
   void runEachTurn(); 
 };
