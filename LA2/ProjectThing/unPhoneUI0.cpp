@@ -544,8 +544,15 @@ void BitcoinPriceUIElement::draw() {
   m_tft->setCursor(10, 10);
   m_tft->print("Bitcoin Price:");
 
-  // Draw the back arrow
-  m_tft->fillTriangle(10, 200, 50, 230, 50, 170, WHITE);
+  // Draw the back box
+  m_tft->fillRect(0, 290, 240, 30, WHITE);
+  m_tft->setTextColor(BLACK);
+  m_tft->setTextSize(2);
+  m_tft->setCursor(80, 293);
+  m_tft->print("Back to Menu");
+
+  // Draw the arrow below the text
+  m_tft->fillTriangle(120, 310, 110, 300, 130, 300, BLACK);
 
   // Draw the buttons
   m_tft->setTextSize(2);
@@ -557,12 +564,12 @@ void BitcoinPriceUIElement::draw() {
     m_tft->setTextColor(WHITE);
   }
 
-  updateAndDrawPrice(); 
+  updateAndDrawPrice();
 }
 
 bool BitcoinPriceUIElement::handleTouch(long x, long y) {
-  // Check if the back arrow was touched
-  if (x >= 10 && x <= 50 && y >= 170 && y <= 230) {
+  // Check if the back box was touched
+  if (x >= 0 && x <= 240 && y >= 290 && y <= 320) {
     return true; // Go back to the main menu
   }
 
@@ -581,7 +588,7 @@ void BitcoinPriceUIElement::updateAndDrawPrice() {
   updateBitcoinPrice();
 
   // Clear the previous price and arrow
-  m_tft->fillRect(10, 50, 240, 30, BLACK);
+  m_tft->fillRect(10, 50, 260, 30, BLACK);
 
   // Buffer to store the formatted price string
   char formatted_price[10];
@@ -597,14 +604,14 @@ void BitcoinPriceUIElement::updateAndDrawPrice() {
     m_tft->setTextColor(WHITE);
   }
 
-  m_tft->setTextSize(3);
+  m_tft->setTextSize(4);
   m_tft->setCursor(10, 50);
   m_tft->print("$");
   m_tft->print(formatted_price); // Print the formatted price
 
   // Draw the arrow
-  m_tft->setTextSize(3);
-  m_tft->setCursor(200, 50);
+  m_tft->setTextSize(4);
+  m_tft->setCursor(240, 50);
   if (bitcoin_price.toFloat() > previous_price) {
     m_tft->print((char)24); // Up arrow
   } else if (bitcoin_price.toFloat() < previous_price) {
