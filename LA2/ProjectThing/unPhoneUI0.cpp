@@ -12,6 +12,12 @@ static unPhone *up;
 // initialisation flag, not complete until parent has finished config
 bool UIController::provisioned = false;
 
+// Bitcoin referesh buttons
+int refreshRateIndex = 1; // Start with the 10-second refresh rate
+const long refreshRates[] = {1000, 10000, 30000, 60000, 3600000, 86400000};
+const int buttonPositions[][2] = {{10, 110}, {90, 110}, {170, 110}, {10, 150}, {90, 150}, {170, 150}};
+const char* buttonTexts[] = {"1s", "10s", "30s", "1m", "1h", "24h"};
+
 // the UI elements types (screens) /////////////////////////////////////////
 const char *UIController::ui_mode_names[] = {
   "Menu",
@@ -539,17 +545,35 @@ void BitcoinPriceUIElement::draw() {
   m_tft->print("Bitcoin Price:");
 
   // Draw the back arrow
-  m_tft->fillTriangle(BOXSIZE * SWITCHER, 0, BOXSIZE * SWITCHER + BOXSIZE, BOXSIZE / 2, BOXSIZE * SWITCHER, BOXSIZE, WHITE);
+  m_tft->fillTriangle(10, 200, 50, 230, 50, 170, WHITE);
+
+  // Draw the buttons
+  m_tft->setTextSize(2);
+  for (int i = 0; i < 6; i++) {
+    m_tft->fillRect(buttonPositions[i][0], buttonPositions[i][1], 70, 30, WHITE);
+    m_tft->setTextColor(BLACK);
+    m_tft->setCursor(buttonPositions[i][0] + 20, buttonPositions[i][1] + 10);
+    m_tft->print(buttonTexts[i]);
+    m_tft->setTextColor(WHITE);
+  }
 
   updateAndDrawPrice(); 
 }
 
-
 bool BitcoinPriceUIElement::handleTouch(long x, long y) {
   // Check if the back arrow was touched
-  if (x >= BOXSIZE * SWITCHER && x <= BOXSIZE * SWITCHER + BOXSIZE && y >= 0 && y <= BOXSIZE) {
+  if (x >= 10 && x <= 50 && y >= 170 && y <= 230) {
     return true; // Go back to the main menu
   }
+
+  // Check if any refresh rate buttons were touched
+  for (int i = 0; i < 6; i++) {
+    if (x >= buttonPositions[i][0] && x <= buttonPositions[i][0] + 70 && y >= buttonPositions[i][1] && y <= buttonPositions[i][1] + 30) {
+      refreshRateIndex = i;
+      break;
+    }
+  }
+
   return false; // Stay on the current screen
 }
 
@@ -596,7 +620,7 @@ const long interval = 10000;
 void BitcoinPriceUIElement::runEachTurn() {
   unsigned long currentMillis = millis();
 
-  if (currentMillis - previousMillis >= interval) {
+  if (currentMillis - previousMillis >= refreshRates[refreshRateIndex]) {
     // Save the last time the Bitcoin price was updated
     previousMillis = currentMillis;
 
