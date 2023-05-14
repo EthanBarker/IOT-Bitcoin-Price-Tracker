@@ -539,7 +539,7 @@ void BitcoinPriceUIElement::draw() {
   m_tft->print("Bitcoin Price:");
 
   // Draw the back arrow
-  m_tft->fillTriangle(10, 200, 50, 230, 50, 170, WHITE);
+  m_tft->fillTriangle(BOXSIZE * SWITCHER, 0, BOXSIZE * SWITCHER + BOXSIZE, BOXSIZE / 2, BOXSIZE * SWITCHER, BOXSIZE, WHITE);
 
   updateAndDrawPrice(); 
 }
@@ -547,7 +547,7 @@ void BitcoinPriceUIElement::draw() {
 
 bool BitcoinPriceUIElement::handleTouch(long x, long y) {
   // Check if the back arrow was touched
-  if (x >= 10 && x <= 50 && y >= 170 && y <= 230) {
+  if (x >= BOXSIZE * SWITCHER && x <= BOXSIZE * SWITCHER + BOXSIZE && y >= 0 && y <= BOXSIZE) {
     return true; // Go back to the main menu
   }
   return false; // Stay on the current screen
