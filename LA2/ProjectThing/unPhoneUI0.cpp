@@ -565,13 +565,20 @@ void BitcoinPriceUIElement::updateAndDrawPrice() {
   // Format the price with two decimal places
   sprintf(formatted_price, "%.2f", bitcoin_price.toFloat());
 
-  m_tft->setTextColor(WHITE);
+  if (bitcoin_price.toFloat() > previous_price) {
+    m_tft->setTextColor(GREEN);
+  } else if (bitcoin_price.toFloat() < previous_price) {
+    m_tft->setTextColor(RED);
+  } else {
+    m_tft->setTextColor(WHITE);
+  }
+
   m_tft->setTextSize(3);
   m_tft->setCursor(10, 50);
   m_tft->print("$");
   m_tft->print(formatted_price); // Print the formatted price
 
-  // Draw the arrow or dash
+  // Draw the arrow
   m_tft->setTextSize(3);
   m_tft->setCursor(200, 50);
   if (bitcoin_price.toFloat() > previous_price) {
@@ -579,7 +586,7 @@ void BitcoinPriceUIElement::updateAndDrawPrice() {
   } else if (bitcoin_price.toFloat() < previous_price) {
     m_tft->print((char)25); // Down arrow
   } else {
-    m_tft->print("-"); // Dash for no change
+    m_tft->print("-"); // No change
   }
 }
 
