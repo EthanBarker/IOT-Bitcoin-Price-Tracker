@@ -457,13 +457,18 @@ void WifiUIElement::draw() {
   scanNetworks();
   displayNetworks();
 
-  // Draw the back arrow
-  m_tft->fillTriangle(10, 200, 50, 230, 50, 170, WHITE);  
+  // Draw the back button
+  m_tft->fillRoundRect(0, 430, 320, 50, 5, WHITE);
+  m_tft->setTextColor(BLACK);
+  m_tft->setTextSize(2);
+  m_tft->setCursor(10, 440);
+  m_tft->print("Back to Menu ");
+  m_tft->print((char)24); // Arrow pointing left
 }
 
 bool WifiUIElement::handleTouch(long x, long y) {
   // Check if the back arrow was touched
-  if (x >= 10 && x <= 50 && y >= 170 && y <= 230) {
+  if (y >= 430 && y <= 480) {
     return true; // Go back to the main menu
   }
   return false; // Stay on the current screen
