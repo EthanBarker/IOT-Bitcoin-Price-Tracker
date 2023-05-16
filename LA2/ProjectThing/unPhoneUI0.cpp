@@ -24,8 +24,9 @@ const char *UIController::ui_mode_names[] = {
   "Home",
   "Wifi",
   "Bitcoin",
+  "Heads or Tails",
 };
-uint8_t UIController::NUM_UI_ELEMENTS = 4;  // number of UI elements
+uint8_t UIController::NUM_UI_ELEMENTS = 5;  // number of UI elements
 
 // keep Arduino IDE compiler happy /////////////////////////////////////////
 UIElement::UIElement(Adafruit_HX8357* tftp, XPT2046_Touchscreen* tsp, SdFat *sdp) {
@@ -79,7 +80,9 @@ UIElement* UIController::allocateUIElement(ui_modes_t newMode) {
     case ui_wifi: 
       m_element = new WifiUIElement(up->tftp, up->tsp, up->sdp);        break; 
     case ui_bitcoin_price:
-      m_element = new BitcoinPriceUIElement(up->tftp, up->tsp, up->sdp, *up); break;       
+      m_element = new BitcoinPriceUIElement(up->tftp, up->tsp, up->sdp, *up); break;
+    case ui_headsortails:
+      m_element = new HeadsOrTailsUIElement(up->tftp, up->tsp, up->sdp);  break;           
     default:
       Serial.printf("invalid UI mode %d in allocateUIElement\n", newMode);
       m_element = m_menu;
@@ -132,6 +135,7 @@ const char *UIController::modeName(ui_modes_t m) {
     case ui_configure:          return "ui_configure";     break;
     case ui_wifi:               return "ui_wifi";          break;
     case ui_bitcoin_price:      return "Bitcoin Price";    break;
+    case ui_headsortails:       return "ui_headsortails";  break;    
     default:
       D("invalid UI mode %d in allocateUIElement\n", m)
       return "invalid UI mode";
@@ -700,6 +704,70 @@ void BitcoinPriceUIElement::showRefreshRateChangeMessage() {
 
   // Set the time when the message should be cleared
   messageClearTime = millis();
+}
+//////////////////////////////////////////////////////////////////////////////
+void HeadsOrTailsUIElement::draw() {
+  // Clear the screen
+  m_tft->fillScreen(BLACK);
+  
+  // Draw the score
+  m_tft->setTextColor(WHITE);
+  m_tft->setTextSize(2);
+  m_tft->setCursor(10, 10);
+  m_tft->print("Score: ");
+  m_tft->println(score);
+
+  // Draw the buttons for "Heads" and "Tails"
+  m_tft->fillRect(50, 200, 100, 50, WHITE); // "Heads" button
+  m_tft->fillRect(200, 200, 100, 50, WHITE); // "Tails" button
+
+  // Draw the back button
+  m_tft->fillRoundRect(0, 430, 320, 50, 5, WHITE);
+  m_tft->setTextColor(BLACK);
+  m_tft->setTextSize(2);
+  m_tft->setCursor(10, 440);
+  m_tft->print("Back to Menu ");
+  m_tft->print((char)24); // Arrow pointing left
+
+  // Label the buttons
+  m_tft->setTextColor(BLACK);
+  m_tft->setCursor(75, 215);
+  m_tft->print("Heads");
+  m_tft->setCursor(225, 215);
+  m_tft->print("Tails");
+}
+
+bool HeadsOrTailsUIElement::handleTouch(long x, long y) {
+  // Check if the back button was touched
+  if (y >= 420 && y <= 460) {
+    return true; // Go back to the main menu
+  }  
+  if (x >= 50 && x <= 150 && y >= 200 && y <= 250) {
+    playGame(true); // The "Heads" button was pressed
+  } else if (x >= 200 && x <= 300 && y >= 200 && y <= 250) {
+    playGame(false); // The "Tails" button was pressed
+  }
+
+  return false; // Stay on the current screen
+}
+
+void HeadsOrTailsUIElement::runEachTurn() {
+  // No code to run each turn
+}
+
+void HeadsOrTailsUIElement::playGame(bool heads) {
+  // Flip a coin (true = heads, false = tails)
+  bool coin = random(2); 
+
+  if (coin == heads) {
+    Serial.println("You win!");
+    ++score; // Increase the score
+  } else {
+    Serial.println("You lose!");
+  }
+
+  // Redraw the screen to update the score
+  draw();
 }
 //////////////////////////////////////////////////////////////////////////////
 #endif // PREDICTOR_MAIN

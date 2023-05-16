@@ -53,7 +53,8 @@ enum ui_modes_t {
   ui_menu = 0,          //  0
   ui_configure,         //  1 (home)
   ui_wifi,               //  2 (wifi)
-  ui_bitcoin_price      //  3 (bitcoin)
+  ui_bitcoin_price,      //  3 (bitcoin)
+  ui_headsortails        //  4 (H&T)
 };
 
 class UIController { ////////////////////////////////////////////////////////
@@ -149,6 +150,22 @@ public:
     }
   }
 };
+
+class HeadsOrTailsUIElement : public UIElement {
+  private:
+    int score; // Move the score variable inside the class definition
+
+  public:
+    // Modify the constructor inside the class definition
+    HeadsOrTailsUIElement(Adafruit_HX8357* tft, XPT2046_Touchscreen* ts, SdFat* sd) 
+      : UIElement(tft, ts, sd), score(0) {}
+
+    virtual void draw();
+    virtual bool handleTouch(long x, long y);
+    virtual void runEachTurn();
+    void playGame(bool heads);
+};
+
 
 #endif // UNPHONE_UI0
 #endif // header guard
