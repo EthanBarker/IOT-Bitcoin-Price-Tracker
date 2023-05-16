@@ -79,7 +79,7 @@ UIElement* UIController::allocateUIElement(ui_modes_t newMode) {
     case ui_wifi: 
       m_element = new WifiUIElement(up->tftp, up->tsp, up->sdp);        break; 
     case ui_bitcoin_price:
-      m_element = new BitcoinPriceUIElement(up->tftp, up->tsp, up->sdp); break;       
+      m_element = new BitcoinPriceUIElement(up->tftp, up->tsp, up->sdp, *up); break;       
     default:
       Serial.printf("invalid UI mode %d in allocateUIElement\n", newMode);
       m_element = m_menu;
@@ -576,6 +576,11 @@ bool BitcoinPriceUIElement::handleTouch(long x, long y) {
     if (x >= buttonPositions[i][0] && x <= buttonPositions[i][0] + 90 && y >= buttonPositions[i][1] && y <= buttonPositions[i][1] + 40) {
       refreshRateIndex = i;
       showRefreshRateChangeMessage(); // Call the function when a button is pressed
+      
+      // Buzz the device a number of times based on the index of the button pressed.
+      // Note that I'm adding 1 to the index because indices start at 0, 
+      // but you want the first button to buzz once, not zero times.
+      buzzTimes(i + 1);
       break;
     }
   }

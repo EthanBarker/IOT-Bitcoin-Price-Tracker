@@ -126,20 +126,28 @@ class WifiUIElement : public UIElement {
 
 class BitcoinPriceUIElement : public UIElement {
 private:
+  unPhone& m_unPhone;
   String bitcoin_price = "";
   float previous_price = 0;
   unsigned long messageClearTime;   
 public:
-  BitcoinPriceUIElement(Adafruit_HX8357* tft, XPT2046_Touchscreen* ts, SdFat* sd)
-    : UIElement(tft, ts, sd) {}
+  BitcoinPriceUIElement(Adafruit_HX8357* tft, XPT2046_Touchscreen* ts, SdFat* sd, unPhone& unPhoneObj)
+    : UIElement(tft, ts, sd), m_unPhone(unPhoneObj) {}
   void draw();
   void updateBitcoinPrice();
   void updateAndDrawPrice();
   bool handleTouch(long x, long y);
   void runEachTurn(); 
-  void showRefreshRateChangeMessage();
+  void showRefreshRateChangeMessage();  
+  void buzzTimes(int times) {
+    for (int i = 0; i < times; ++i) {
+      m_unPhone.vibe(true);
+      delay(150);
+      m_unPhone.vibe(false);
+      delay(150);
+    }
+  }
 };
-
 
 #endif // UNPHONE_UI0
 #endif // header guard
