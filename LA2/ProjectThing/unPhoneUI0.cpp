@@ -82,7 +82,7 @@ UIElement* UIController::allocateUIElement(ui_modes_t newMode) {
     case ui_bitcoin_price:
       m_element = new BitcoinPriceUIElement(up->tftp, up->tsp, up->sdp, *up); break;
     case ui_headsortails:
-      m_element = new HeadsOrTailsUIElement(up->tftp, up->tsp, up->sdp);  break;           
+      m_element = new HeadsOrTailsUIElement(up->tftp, up->tsp, up->sdp, *up);  break;           
     default:
       Serial.printf("invalid UI mode %d in allocateUIElement\n", newMode);
       m_element = m_menu;
@@ -729,6 +729,13 @@ void HeadsOrTailsUIElement::draw() {
   m_tft->print("Best: ");
   m_tft->println(bestScore);
 
+  // Draw the remaining lives
+  m_tft->setTextColor(YELLOW);
+  m_tft->setTextSize(2);
+  m_tft->setCursor(10, 110);
+  m_tft->print("Lives: ");
+  m_tft->println(lives);
+
   // Draw the buttons for "Heads" and "Tails"
   m_tft->fillRoundRect(30, 200, 120, 80, 5, GREEN); // "Heads" button
   m_tft->fillRoundRect(170, 200, 120, 80, 5, RED); // "Tails" button
@@ -766,6 +773,7 @@ void HeadsOrTailsUIElement::runEachTurn() {
   // No code to run each turn
 }
 
+
 void HeadsOrTailsUIElement::playGame(bool heads) {
   // Flip a coin (true = heads, false = tails)
   bool coin = random(2); 
@@ -780,10 +788,16 @@ void HeadsOrTailsUIElement::playGame(bool heads) {
     }
   } else {
     Serial.println("You lose!");
-    score = 0; // Reset the score
+    --lives; // Decrement the lives
+    buzz(); // Buzz to signal a loss
+
+    if (lives == 0) {
+      score = 0; // Reset the score
+      lives = 3; // Reset the lives
+    }
   }
 
-  // Redraw the screen to update the score
+  // Redraw the screen to update the score and lives
   draw();
 }
 //////////////////////////////////////////////////////////////////////////////

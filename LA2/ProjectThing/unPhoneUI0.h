@@ -152,18 +152,28 @@ public:
 };
 
 class HeadsOrTailsUIElement : public UIElement {
-  private:
-    int score; // Current score
-    int bestScore; // Best score
+private:
+  int score; // Current score
+  int bestScore; // Best score
+  int lives; // Player's remaining lives
+  unPhone& m_unPhone; // Reference to the unPhone object
+  
+public:
+  HeadsOrTailsUIElement(Adafruit_HX8357* tft, XPT2046_Touchscreen* ts, SdFat* sd, unPhone& unPhoneObj) 
+    : UIElement(tft, ts, sd), m_unPhone(unPhoneObj), score(0), bestScore(0), lives(3) {}
 
-  public:
-    HeadsOrTailsUIElement(Adafruit_HX8357* tft, XPT2046_Touchscreen* ts, SdFat* sd) 
-      : UIElement(tft, ts, sd), score(0), bestScore(0) {}
-
-    virtual void draw();
-    virtual bool handleTouch(long x, long y);
-    virtual void runEachTurn();
-    void playGame(bool heads);
+  virtual void draw();
+  virtual bool handleTouch(long x, long y);
+  virtual void runEachTurn();
+  void playGame(bool heads);
+  void buzz() {
+    for (int i = 0; i < 3; ++i) {
+      m_unPhone.vibe(true);
+      delay(150);
+      m_unPhone.vibe(false);
+      delay(150);
+    }
+  }
 };
 
 #endif // UNPHONE_UI0
