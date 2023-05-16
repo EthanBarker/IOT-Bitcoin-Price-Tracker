@@ -467,11 +467,42 @@ void WifiUIElement::draw() {
 }
 
 bool WifiUIElement::handleTouch(long x, long y) {
-  // Check if the back arrow was touched
+  // Check if the back button was touched
   if (y >= 430 && y <= 480) {
     return true; // Go back to the main menu
   }
+
+  // Check if a network was selected
+  int startY = 50; // Starting y-coordinate for network list
+  int lineHeight = 30; // Height for each line (adjust as needed)
+
+  for (int i = 0; i < numberOfNetworks; ++i) {
+    int yTop = startY + i * lineHeight; // Compute y-coordinates for each line
+    int yBottom = yTop + lineHeight;
+
+    if (x >= 10 && x <= 310 && y >= yTop && y <= yBottom) {
+      // A network was selected, connect to it here
+      connectToNetwork(networkNames[i]);
+      break;
+    }
+  }
+
   return false; // Stay on the current screen
+}
+
+void WifiUIElement::connectToNetwork(String networkName) {
+  // Assuming you know the password or it's an open network
+  String password = "ptpassword";
+
+  WiFi.begin(networkName.c_str(), password.c_str());
+
+  // Wait for connection
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.println("Connecting to WiFi...");
+  }
+
+  Serial.println("Connected to WiFi");
 }
 
 void WifiUIElement::runEachTurn() {
@@ -514,11 +545,19 @@ void WifiUIElement::scanNetworks() {
 
 void WifiUIElement::displayNetworks() {
   m_tft->setTextColor(WHITE);
-  m_tft->setTextSize(2);
+  m_tft->setTextSize(3); // Increase text size
+
+  int startY = 50; // Starting y-coordinate for network list
+  int lineHeight = 30; // Height for each line (adjust as needed)
 
   for (int i = 0; i < numberOfNetworks; ++i) {
-    m_tft->setCursor(10, 10 + i * 20);
+    int yPos = startY + i * lineHeight; // Compute y-coordinate for each line
+    m_tft->setCursor(10, yPos);
     m_tft->println(networkNames[i]);
+
+    if (i < numberOfNetworks - 1) { // Don't draw a line after the last network
+      m_tft->drawLine(10, yPos + lineHeight - 5, 310, yPos + lineHeight - 5, WHITE); // Draw a line
+    }
   }
 }
 //////////////////////////////////////////////////////////////////////////////
@@ -582,9 +621,6 @@ bool BitcoinPriceUIElement::handleTouch(long x, long y) {
       refreshRateIndex = i;
       showRefreshRateChangeMessage(); // Call the function when a button is pressed
       
-      // Buzz the device a number of times based on the index of the button pressed.
-      // Note that I'm adding 1 to the index because indices start at 0, 
-      // but you want the first button to buzz once, not zero times.
       buzzTimes(i + 1);
       break;
     }

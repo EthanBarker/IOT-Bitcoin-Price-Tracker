@@ -122,6 +122,7 @@ class WifiUIElement : public UIElement {
     void scanNetworks();
     void displayNetworks();
     void initWiFi(); 
+    void connectToNetwork(String networkName);
 };
 
 class BitcoinPriceUIElement : public UIElement {
