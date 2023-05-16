@@ -709,47 +709,58 @@ void BitcoinPriceUIElement::showRefreshRateChangeMessage() {
 void HeadsOrTailsUIElement::draw() {
   // Clear the screen
   m_tft->fillScreen(BLACK);
-  
-  // Draw the score
-  m_tft->setTextColor(WHITE);
+
+  // Draw the title
+  m_tft->setTextColor(CYAN);
+  m_tft->setTextSize(3);
+  m_tft->setCursor(40, 10);
+  m_tft->println("Heads or Tails");
+
+  // Draw the current score
+  m_tft->setTextColor(YELLOW);
   m_tft->setTextSize(2);
-  m_tft->setCursor(10, 10);
+  m_tft->setCursor(10, 50);
   m_tft->print("Score: ");
   m_tft->println(score);
 
+  // Draw the best score
+  m_tft->setTextColor(YELLOW);
+  m_tft->setCursor(10, 80);
+  m_tft->print("Best: ");
+  m_tft->println(bestScore);
+
   // Draw the buttons for "Heads" and "Tails"
-  m_tft->fillRect(50, 200, 100, 50, WHITE); // "Heads" button
-  m_tft->fillRect(200, 200, 100, 50, WHITE); // "Tails" button
+  m_tft->fillRoundRect(30, 200, 120, 80, 5, GREEN); // "Heads" button
+  m_tft->fillRoundRect(170, 200, 120, 80, 5, RED); // "Tails" button
 
   // Draw the back button
-  m_tft->fillRoundRect(0, 430, 320, 50, 5, WHITE);
-  m_tft->setTextColor(BLACK);
+  m_tft->fillRoundRect(100, 350, 120, 60, 5, BLUE);
+  m_tft->setTextColor(WHITE);
   m_tft->setTextSize(2);
-  m_tft->setCursor(10, 440);
-  m_tft->print("Back to Menu ");
-  m_tft->print((char)24); // Arrow pointing left
+  m_tft->setCursor(120, 370);
+  m_tft->print("Back");
 
   // Label the buttons
-  m_tft->setTextColor(BLACK);
-  m_tft->setCursor(75, 215);
+  m_tft->setTextColor(WHITE);
+  m_tft->setCursor(60, 240);
   m_tft->print("Heads");
-  m_tft->setCursor(225, 215);
+  m_tft->setCursor(200, 240);
   m_tft->print("Tails");
 }
 
 bool HeadsOrTailsUIElement::handleTouch(long x, long y) {
   // Check if the back button was touched
-  if (y >= 420 && y <= 460) {
+  if (x >= 100 && x <= 220 && y >= 350 && y <= 410) {
     return true; // Go back to the main menu
   }  
-  if (x >= 50 && x <= 150 && y >= 200 && y <= 250) {
+  if (x >= 30 && x <= 150 && y >= 200 && y <= 280) {
     playGame(true); // The "Heads" button was pressed
-  } else if (x >= 200 && x <= 300 && y >= 200 && y <= 250) {
+  } else if (x >= 170 && x <= 290 && y >= 200 && y <= 280) {
     playGame(false); // The "Tails" button was pressed
   }
 
   return false; // Stay on the current screen
-}
+} 
 
 void HeadsOrTailsUIElement::runEachTurn() {
   // No code to run each turn
@@ -762,8 +773,14 @@ void HeadsOrTailsUIElement::playGame(bool heads) {
   if (coin == heads) {
     Serial.println("You win!");
     ++score; // Increase the score
+
+    // Check if this is a new high score
+    if (score > bestScore) {
+      bestScore = score;
+    }
   } else {
     Serial.println("You lose!");
+    score = 0; // Reset the score
   }
 
   // Redraw the screen to update the score

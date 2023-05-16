@@ -153,19 +153,18 @@ public:
 
 class HeadsOrTailsUIElement : public UIElement {
   private:
-    int score; // Move the score variable inside the class definition
+    int score; // Current score
+    int bestScore; // Best score
 
   public:
-    // Modify the constructor inside the class definition
     HeadsOrTailsUIElement(Adafruit_HX8357* tft, XPT2046_Touchscreen* ts, SdFat* sd) 
-      : UIElement(tft, ts, sd), score(0) {}
+      : UIElement(tft, ts, sd), score(0), bestScore(0) {}
 
     virtual void draw();
     virtual bool handleTouch(long x, long y);
     virtual void runEachTurn();
     void playGame(bool heads);
 };
-
 
 #endif // UNPHONE_UI0
 #endif // header guard
