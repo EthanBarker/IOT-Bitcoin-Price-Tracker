@@ -15,9 +15,10 @@ This is the .readme file for COM3505 LA2. For my project I have chosen to implem
 For this LA2 project I used the unPhone. This device is a mobile phone alterntive offered by the University of Sheffield. 
 
 # Design 
-I designed my project by
+I designed my project by first taking a look at the unPhone examples provided in the library. I found that the everything example best suited me and provided me with a good background of some examples that the unPhone could do. I noted in the course notes under Chapter 11 there was information about how to add pages so this is where I began. I imagined that I would want to add a few new pages to the existing code so I learnt how do to this. The first page we created was the wifi page as I wanted to connect my unPhone to the internet for it receives bitcoin price data. I took inspiration from the LA1 assignment in scanning for networks that the unPhone can connect to and displaying them in a list on the unPhone screen. From here a user can connect to any network that does not need a password. If a user wants to connect to a password-protected network they will need to manually add the SSID and password to "private.h". The second page we designed was the Bitcoin price page and we imagined that this would simply display the price of Bitcoin at the top of the page using the Coinbase API. We also wanted the user to be able to change the refresh rate for how often the price updates. Finally, the last page we thought of was a simple Heads vs Tails page which was an example of how to store data on the unPhone through a fun game. 
 
 # Config page
+
 
 # Wifi page
 
