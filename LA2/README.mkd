@@ -35,6 +35,14 @@ The methods for this class are:
 * buzzTimes(int times) : This method causes the unPhone to vibrate a set number of times. This is done once when the first button is pressed, twice for the second button and up to 6 times for all buttons. This is so users can sense by the vibration that they have changed refresh mode.
 
 # Heads or Tails page
+The Heads or Tails page was designed to be a simple game where the user has to choose between Heads or Tails for a coinflip event. The user has 3 lives and gains a point for every correct choice but loses a life for every incorrect choice. For this there also exsisted a single class which extends the UIElement class. This class similar to that of the class above contained methods for drawing the user interface, touch events and playing the game.
+
+The methods for this class are: 
+* draw() : As before the draw class handles all of the code for drawing the user interface. This includes the score, the all time high score, the amount of lives and the buttons to play the game. 
+* handleTouch(long x, long y) : As before the handleTouch class controls the touch events for the game mainly the two buttons we use to represent heads or tails. This also contains the code to navigate back to the main menu. 
+* runEachTurn() : This method was required as an extension of the UIElement class but did not do anything so we kept it empty. 
+* playGame(bool heads) : This method plays a round of the game. It flips a coin and compares the result to the player's choice, heads or tails. If the guess is correct, the player's score is increased. If the guess is incorrect, the player loses a life. This repeats until the user has no lives left.
+* buzz() : As before this makes the unPhone vibrate 3 times.
 
 # Testing
 
