@@ -12,8 +12,10 @@ This is the .readme file for COM3505 LA2. For my project I have chosen to implem
 * ArduinoJson.h 
 
 # The unPhone & Hardware
+For this LA2 project I used the unPhone. This device is a mobile phone alterntive offered by the University of Sheffield. 
 
 # Design 
+I designed my project by
 
 # Config page
 
