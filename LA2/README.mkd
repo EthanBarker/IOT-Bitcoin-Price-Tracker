@@ -21,6 +21,16 @@ I designed my project by first taking a look at the unPhone examples provided in
 
 
 # Wifi page
+The Wifi page was designed so that a user could easily connect to open networks without the need for them to have any coding experience. I only designed this feature to be able to connect to open networks without a password as of the complexity needed to implement a keyboard. I thought since we had done something like this in LA1 then there wasnt much point doing it again for LA2. Despite this if I had more time for this module and less commitments to other modules then I would have added the ability to connect to password protected networks. This screen represents a Wifi UI element which was one class which contained multiple methods to carry our actions such as drawing the user interface and finding nearby networks.
+
+The methods for this class were:
+* draw()
+* handleTouch(long x, long y)
+* runEachTurn()
+* scanNetworks()
+* displayNetworks()
+* initWiFi()
+* connectToNetwork(String networkName)
 
 # Bitcoin page
 The Bitcoin Price page is designed as a real-time Bitcoin price tracker. There exists one class for this element which contains several public methods to draw the user interface, handle touch events, update the Bitcoin price and display this price in the correct format.  
