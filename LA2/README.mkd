@@ -1,8 +1,2 @@
-
 # COM3505 Lab Assessment 2
-
-Put your documentation here. 
-
-Put your code in [ProjectThing/ProjectThing.ino](ProjectThing/ProjectThing.ino).
-
-See [the rubric](rubric.mkd) for more details.
+This is the .readme file for COM3505 LA2. For my project I have chosen to implement two new screens for the unPhone. The first of these is a Bitcoin Price tracker which can be used to check the price of Bitcoin at intervals of every second, 10 seconds, 30 seconds, 1 minute, 1 hour and 24 hours. This page also shows the user an up arrow or down arrow depending on if the price is increasing or decreasing. On top of this, we also coloured the text red or green to show a decreasing price or increasing price respectfully. The second screen we implemented was the Heads or Tails game which is based upon pure luck (like crypto seems to be). This was a simple screen which implemented a game where a user is prompted to choose between Heads or Tails. If they make the correct choice they gain a point and if they make the wrong choice they lose a life. This game goes on until a user loses all of their lives then the game will reset. On top of this, we also implemented a wifi screen where a user can select any open network without a password and connect to it. Optionally, the user can connect to password-protected networks by adding the SSID and password to the file "private.h". We began making this project by using code provided by the unPhone library example named "everything". Our addition to this code provided was the three extra screens and their functionality. These screens are named "Wifi", "Bitcoin" and "Heads or Tails".
