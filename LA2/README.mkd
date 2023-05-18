@@ -62,9 +62,11 @@ The methods for this class are:
 # Testing
 When it came to testing my LA2 assignment I opted for manual testing. This involved me uploading my code to the unPhone and seeing if it does what I wanted it to do. I saw on the config page that the unPhone had connected successfully to the wifi as this information is displayed. I saw that the config page worked fine with all pages being accessible. 
 
-The wifi page managed to scan and display nearby networks. 
+The wifi page managed to scan and display nearby networks. We tested this by taking the unPhone to a different set of locations to see if it could pick up networks wherever it was located. We tested this at my university flat, my friends house and my parents home. The unPhone always picked up nearby networks in the area.
 
 The Bitcoin page displayed the price of Bitcoin in green if the price was going up, white if no change and red if the price is going down. I could see the arrows were clearly working too showing a price increase/ decrease. I noticed that the refresh buttons all work and we tested this whilst using a stop watch to show that the first few buttons were working fine. I did however not test this for the 24h feature. I found that after a while of tracking the price the unPhone would reset. I thought that this would be due to a memory error. Apart from this bug we did not have any problems with the Bitcoin price page.
+
+For our Heads or Tails page testing was done by playing the game. I played through the game seeing that if I made the correct choice I gained a point and if I had made an incorrect choice then I would lose a life. I saw that when all lives were lost the score reset to 0 and the game restarted. I also saw that the feature which displayed the all time high score displayed the best score. This did however reset when I left that screen and came back. If I had more time for this module then my next steps would be to look at how I could store this best score and this information still be there when I turn the unPhone on and off. 
 
 # Security
 As for any project I had to look at security of the unPhone and our LA2 assignment. With this project there are multiple areas that require security. 
