@@ -1,5 +1,5 @@
 // ProjectThing.ino ////////////////////////////////////////////////////////////////
-// an unPhone example with a bit of everything... ////////////////////////////
+// This code is from the unPhone example provided by Hamish Cunningham, we have adapted this code for our own use.
 
 #include <WiFiMulti.h>          // manage WiFi connections
 #include <Adafruit_EPD.h>       // for pio LDF
