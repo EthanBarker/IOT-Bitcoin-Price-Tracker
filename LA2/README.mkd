@@ -21,6 +21,9 @@ I designed my project by first taking a look at the unPhone examples provided in
 # Config page
 The config page was directly taken from the unPhone library. We however did adapt the code for it to look a bit different and not display as much as originally implemented. We displayed on this page the MAC address, IP address and Firmware. 
 
+![Config Screen](./com3505-student-2023/LA2/Images/Config Screen.png)
+
+
 The key methods for this page were:
 * draw() : The draw method is responsible for showing information onto the unPhone display. It shows information such as the MAC address, IP address and Firmware.
 * handleTouch(long x, long y) : This method is responsible for any touch events that occur. It will return a boolean value of True or False depending on if the button is pressed.
