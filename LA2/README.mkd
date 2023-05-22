@@ -21,7 +21,7 @@ I designed my project by first taking a look at the unPhone examples provided in
 # Config page
 The config page was directly taken from the unPhone library. We however did adapt the code for it to look a bit different and not display as much as originally implemented. We displayed on this page the MAC address, IP address and Firmware. 
 
-![Config Screen](./com3505-student-2023/LA2/Images/Config Screen.png)
+![Config Screen](./com3505-student-2023/LA2/Images/Config%20Screen.png)
 
 
 The key methods for this page were:
