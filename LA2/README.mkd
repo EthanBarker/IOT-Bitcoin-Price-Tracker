@@ -13,7 +13,22 @@ https://www.youtube.com/watch?v=mSri_mZRCyw
 * ArduinoJson.h 
 
 # The unPhone
-For this LA2 project, I used the unPhone. This device is a mobile phone alternative offered by the University of Sheffield. At the start of the project, we were given the unPhone to assemble. You can see photos of how I assembled the unPhone step by step inside the images folder. The unPhone was simple to put together as it only consisted of a small number of parts. We made use of the vibration motor, USB C socket, on/off slide switch, touchscreen and battery. 
+For this LA2 project, I used the unPhone. This device is a mobile phone alternative offered by the University of Sheffield. At the start of the project, we were given the unPhone to assemble.  The unPhone was simple to put together as it only consisted of a small number of parts. We made use of the vibration motor, USB C socket, on/off slide switch, touchscreen and battery. 
+
+Here are the steps we took to put the unPhone together:
+
+* Step 1: Lay down all of the parts on a table
+![Step 1](LA2/Images/All_Parts.png)
+
+* Step 2: Insert the printed circuit board into the front of the unPhone case. The screen should be visible on the other side and all buttons should fit in the slots provided. There could be a problem where the holes need to be made bigger but this was not the case for my project.
+![Step 1](LA2/Images/Step_2.png)
+
+* Step 2: Attach the battery to the printed circuit board. You also can use this bit of plastic to hold it into place.
+![Step 2](LA2/Images/Step_3.png)
+
+* Step 3: Cover the unPhone with the rest of the case and screw in the screws to hold the unPhone together.
+![Step 3](LA2/Images/Step_4.png)
+
 
 # Design 
 I designed my project by first taking a look at the unPhone examples provided in the library. I found that the everything example best suited me and provided me with a good background of some examples that the unPhone could do. I noted in the course notes under Chapter 11 there was information about how to add pages so this is where I began. I imagined that I would want to add a few new pages to the existing code so I learnt how do to this. The first page we created was the wifi page as I wanted to connect my unPhone to the internet so it receives bitcoin price data. I took inspiration from the LA1 assignment in scanning for networks that the unPhone can connect to and displaying them in a list on the unPhone screen. From here a user can connect to any network that does not need a password. If a user wants to connect to a password-protected network they will need to manually add the SSID and password to "private.h". The second page we designed was the Bitcoin price page and we imagined that this would simply display the price of Bitcoin at the top of the page using the Coinbase API. We also wanted the user to be able to change the refresh rate for how often the price updates. Finally, the last page we thought of was a simple Heads vs Tails page which was an example of how to store data on the unPhone through a fun game. 
@@ -33,6 +48,8 @@ The code for this can be found in unPhoneUI0.h and unPhoneUI0.cpp
 # Wifi page
 The Wifi page was designed so that a user could easily connect to open networks without the need for them to have any coding experience. I only designed this feature to be able to connect to open networks without a password as of the complexity needed to implement a keyboard. I thought since we had done something like this in LA1 then there wasn't much point doing it again for LA2. Despite this, if I had more time for this module and fewer commitments to other modules then I would have added the ability to connect to password-protected networks. This screen represents a Wifi UI element which was one class which contained multiple methods to carry out our actions such as drawing the user interface and finding nearby networks.
 
+![Wifi page](LA2/Images/Nearby_Networks.png)
+
 The methods for this class were:
 * draw() : This method creates the user interface for the unPhones wifi page. It begins by scanning all available networks that the unPhone can connect to and displays this information. It also displays the back button at the bottom of the page.
 * handleTouch(long x, long y) : This method manages all touch events for this page. The most important one of these is the ability to press on a network and connect to it. 
@@ -47,6 +64,9 @@ The code for this can be found in unPhoneUI0.h and unPhoneUI0.cpp
 # Bitcoin page
 The Bitcoin Price page is designed as a real-time Bitcoin price tracker. There exists one class for this element which contains several public methods to draw the user interface, handle touch events, update the Bitcoin price and display this price in the correct format.  
 
+![Bitcoin up](LA2/Images/Bitcoin_Up.png)
+![Bitcoin down](LA2/Images/Bitcoin_Down.png)
+
 The methods for this class are:
 * draw() : This method draws the Bitcoin Price user interface onto the screen of the unPhone. This includes parts of the elements such as the Bitcoin Price label or the "Back to Menu" button. Note this is not the logic for what happens when you press these buttons, this code only is for the display. 
 * updateBitcoinPrice() : This method is responsible for updating the price of Bitcoin by making an HTTP GET request to the Coinbase API. This is a public API so no API key was needed for this project. 
@@ -60,6 +80,8 @@ The code for this can be found in unPhoneUI0.h and unPhoneUI0.cpp
 
 # Heads or Tails page
 The Heads or Tails page was designed to be a simple game where the user has to choose between Heads or Tails for a coinflip event. The user has 3 lives and gains a point for every correct choice but loses a life for every incorrect choice. For this there also existed a single class which extends the UIElement class. This class similar to that of the class above contained methods for drawing the user interface, touch events and playing the game.
+
+![Heads or Tails](LA2/Images/Heads_or_Tails_Game.png)
 
 The methods for this class are: 
 * draw() : As before the draw class handles all of the code for drawing the user interface. This includes the score, the all-time high score, the number of lives and the buttons to play the game. 
